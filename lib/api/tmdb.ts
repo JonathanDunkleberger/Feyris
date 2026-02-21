@@ -1,0 +1,58 @@
+const TMDB_BASE = "https://api.themoviedb.org/3";
+
+function tmdbUrl(path: string, params: Record<string, string> = {}) {
+  const url = new URL(TMDB_BASE + path);
+  url.searchParams.set("api_key", process.env.TMDB_API_KEY || "");
+  url.searchParams.set("language", "en-US");
+  for (const [k, v] of Object.entries(params)) {
+    url.searchParams.set(k, v);
+  }
+  return url.toString();
+}
+
+export async function searchTMDB(query: string) {
+  const res = await fetch(
+    tmdbUrl("/search/multi", { query, include_adult: "false" }),
+    { next: { revalidate: 300 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.results || []).filter(
+    (r: any) => r.media_type === "movie" || r.media_type === "tv"
+  );
+}
+
+export async function getTMDBDetails(
+  id: number,
+  type: "movie" | "tv"
+) {
+  const res = await fetch(
+    tmdbUrl(`/${type}/${id}`, {
+      append_to_response: "videos,credits,similar,watch/providers",
+    }),
+    { next: { revalidate: 86400 } }
+  );
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function getTMDBTrending(
+  type: "movie" | "tv" = "movie",
+  timeWindow: "day" | "week" = "week"
+) {
+  const res = await fetch(
+    tmdbUrl(`/trending/${type}/${timeWindow}`),
+    { next: { revalidate: 3600 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results || [];
+}
+
+export function tmdbImageUrl(
+  path: string | null | undefined,
+  size: string = "w500"
+): string | undefined {
+  if (!path) return undefined;
+  return `https://image.tmdb.org/t/p/${size}${path}`;
+}

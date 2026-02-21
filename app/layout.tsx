@@ -1,21 +1,36 @@
 import "./globals.css";
-import Header from "./_components/Header";
-import ChristmasSnow from "./_components/ChristmasSnow";
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
+import { Providers } from "./providers";
 
 export const metadata = {
-  title: "Feyris — Media Recs",
-  description: "Pick favorites across film, games, anime, TV, and books, then get recommendations."
+  title: "Feyris — Your Unified Media Universe",
+  description:
+    "Track everything you watch, play, and read in one place. Cross-medium recommendations, library management, and Spotify Wrapped-style insights.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-[#0b0b0f] text-white min-h-screen font-sans antialiased">
-        <ChristmasSnow />
-        <Header />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "#c8a44e",
+          colorBackground: "#0e0e14",
+          colorText: "#f0ebe0",
+        },
+      }}
+    >
+      <html lang="en" className="dark">
+        <body className="bg-fey-black text-cream min-h-screen font-sans antialiased">
+          <Providers>{children}</Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
 
