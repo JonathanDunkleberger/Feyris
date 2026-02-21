@@ -35,9 +35,9 @@ export function SearchBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Keep dropdown open — users select from results
     if (query.trim()) {
       setSearchQuery(query.trim());
+      setShowDropdown(false);
     }
   };
 

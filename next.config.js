@@ -25,6 +25,21 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
+      {
+        source: "/favorites",
+        destination: "/collection",
+        permanent: true,
+      },
+      {
+        source: "/library",
+        destination: "/collection",
+        permanent: true,
+      },
+      {
+        source: "/watchlist",
+        destination: "/collection",
+        permanent: true,
+      },
     ];
   },
 };

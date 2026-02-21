@@ -1,7 +1,7 @@
 "use client";
 
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
-import { Heart, CheckCircle, Clock } from "lucide-react";
+import { BookMarked } from "lucide-react";
 import { SearchBar } from "./SearchBar";
 import { CatLogo } from "@/components/shared/CatLogo";
 import { useAppStore } from "@/stores/app-store";
@@ -66,19 +66,9 @@ export function TopBar() {
           >
             <UserButton.MenuItems>
               <UserButton.Link
-                label="Favorites"
-                labelIcon={<Heart size={14} />}
-                href="/favorites"
-              />
-              <UserButton.Link
-                label="Library"
-                labelIcon={<CheckCircle size={14} />}
-                href="/library"
-              />
-              <UserButton.Link
-                label="Watchlist"
-                labelIcon={<Clock size={14} />}
-                href="/watchlist"
+                label="My Collection"
+                labelIcon={<BookMarked size={14} />}
+                href="/collection"
               />
             </UserButton.MenuItems>
           </UserButton>

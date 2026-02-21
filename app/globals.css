@@ -57,7 +57,6 @@
   }
   body {
     @apply bg-fey-black text-cream font-sans antialiased;
-    overflow-x: hidden;
   }
 }
 
