@@ -1,39 +1,21 @@
 "use client";
 
-import { useState, useRef, useEffect, useDeferredValue, useMemo } from "react";
-import { Search, X } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Search, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
-import { ALL_MOCK_MEDIA } from "@/lib/mock-data";
+import { useSearch } from "@/hooks/useSearch";
 import { MEDIA_TYPES } from "@/lib/constants";
 
 export function SearchBar() {
   const router = useRouter();
-  const { searchQuery, setSearchQuery, setSelectedItem } = useAppStore();
-  const [localQuery, setLocalQuery] = useState(searchQuery);
+  const { setSearchQuery, setSelectedItem } = useAppStore();
+  const { query, setQuery, results, isLoading } = useSearch();
   const [focused, setFocused] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const deferredQuery = useDeferredValue(localQuery);
-
-  useEffect(() => {
-    setSearchQuery(deferredQuery);
-  }, [deferredQuery, setSearchQuery]);
-
-  // Filter mock data for autocomplete
-  const results = useMemo(() => {
-    if (!deferredQuery.trim()) return [];
-    const q = deferredQuery.toLowerCase();
-    return ALL_MOCK_MEDIA.filter(
-      (item) =>
-        item.title.toLowerCase().includes(q) ||
-        item.author?.toLowerCase().includes(q) ||
-        item.genres.some((g) => g.toLowerCase().includes(q)) ||
-        item.media_type.toLowerCase().includes(q)
-    ).slice(0, 8);
-  }, [deferredQuery]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -46,16 +28,24 @@ export function SearchBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Show dropdown when results arrive
+  useEffect(() => {
+    if (results.length > 0 && query.trim()) {
+      setShowDropdown(true);
+    }
+  }, [results, query]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (localQuery.trim()) {
+    if (query.trim()) {
       setShowDropdown(false);
-      router.push(`/discover?q=${encodeURIComponent(localQuery.trim())}`);
+      setSearchQuery(query.trim());
+      router.push(`/discover?q=${encodeURIComponent(query.trim())}`);
     }
   };
 
   const handleClear = () => {
-    setLocalQuery("");
+    setQuery("");
     setSearchQuery("");
     setShowDropdown(false);
     inputRef.current?.focus();
@@ -64,7 +54,7 @@ export function SearchBar() {
   const handleSelect = (item: MediaItem) => {
     setSelectedItem(item);
     setShowDropdown(false);
-    setLocalQuery("");
+    setQuery("");
     setSearchQuery("");
   };
 
@@ -78,29 +68,36 @@ export function SearchBar() {
               : "border-gold/[0.06] bg-fey-surface"
           }`}
         >
-          <Search
-            size={14}
-            className={`transition-colors ${
-              focused ? "text-gold" : "text-cream/20"
-            }`}
-          />
+          {isLoading ? (
+            <Loader2
+              size={14}
+              className="animate-spin text-gold"
+            />
+          ) : (
+            <Search
+              size={14}
+              className={`transition-colors ${
+                focused ? "text-gold" : "text-cream/20"
+              }`}
+            />
+          )}
           <input
             ref={inputRef}
             type="text"
-            value={localQuery}
+            value={query}
             onChange={(e) => {
-              setLocalQuery(e.target.value);
-              setShowDropdown(true);
+              setQuery(e.target.value);
+              if (e.target.value.trim()) setShowDropdown(true);
             }}
             onFocus={() => {
               setFocused(true);
-              if (localQuery.trim()) setShowDropdown(true);
+              if (query.trim() && results.length > 0) setShowDropdown(true);
             }}
             onBlur={() => setFocused(false)}
             placeholder="Search anime, games, films, books..."
             className="flex-1 bg-transparent text-[12.5px] text-cream placeholder:text-cream/20 outline-none"
           />
-          {localQuery && (
+          {query && (
             <button
               type="button"
               onClick={handleClear}
@@ -121,7 +118,7 @@ export function SearchBar() {
             backdropFilter: "blur(20px)",
           }}
         >
-          {results.map((item) => {
+          {(results as MediaItem[]).slice(0, 8).map((item) => {
             const typeConfig = MEDIA_TYPES[item.media_type];
             return (
               <button
@@ -162,15 +159,19 @@ export function SearchBar() {
                     {item.author && <span>· {item.author}</span>}
                   </div>
                 </div>
-                {/* Match */}
-                {item.match && (
+                {/* Rating */}
+                {item.rating != null && item.rating > 0 && (
                   <span className="shrink-0 text-[10px] font-bold text-gold">
-                    {item.match}%
+                    {item.rating}%
                   </span>
                 )}
               </button>
             );
           })}
+          {/* Footer: press enter to search */}
+          <div className="border-t border-gold/[0.06] px-3 py-2 text-[10px] text-cream/20">
+            Press <kbd className="rounded border border-gold/10 bg-gold/[0.04] px-1 py-0.5 text-[9px] font-bold text-cream/40">Enter</kbd> to see all results
+          </div>
         </div>
       )}
     </div>

@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { SlidersHorizontal, Tv, Gamepad2, BookOpen, Monitor, Film } from "lucide-react";
+import { SlidersHorizontal, Tv, Gamepad2, BookOpen, Monitor, Film, Lock, Compass } from "lucide-react";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { useAppStore } from "@/stores/app-store";
-import { useUser } from "@clerk/nextjs";
+import { useUser, SignInButton } from "@clerk/nextjs";
 import { useLibrary } from "@/hooks/useLibrary";
 import type { MediaItem, LibraryEntry } from "@/stores/app-store";
-import { ALL_MOCK_MEDIA } from "@/lib/mock-data";
 
 const FILTER_TYPES = [
   { label: "All", icon: null },
@@ -24,7 +23,7 @@ export default function LibraryPage() {
   const { data: library, isLoading } = useLibrary();
   const [activeFilter, setActiveFilter] = useState("All");
 
-  // Extract media items from library entries, or use mock data if not logged in
+  // Extract media items from library entries (only when signed in)
   const libraryItems: MediaItem[] = user
     ? ((library as LibraryEntry[] | undefined) || [])
         .filter((entry: LibraryEntry) => entry.media)
@@ -34,11 +33,7 @@ export default function LibraryPage() {
             : entry.media!.media_type.toLowerCase() === activeFilter.toLowerCase()
         )
         .map((entry: LibraryEntry) => entry.media!)
-    : ALL_MOCK_MEDIA.filter((item) =>
-        activeFilter === "All"
-          ? true
-          : item.media_type.toLowerCase() === activeFilter.toLowerCase()
-      );
+    : [];
 
   return (
     <div className="animate-fadeIn">
@@ -88,23 +83,59 @@ export default function LibraryPage() {
 
       {/* Sign-in prompt for guests */}
       {!user && (
-        <div className="mb-4 rounded-lg border border-gold/10 bg-gold/[0.03] px-4 py-3 text-[11.5px] text-cream/40">
-          <span className="font-bold text-gold">Sign in</span> to save your own
-          library. Showing sample content below.
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div
+            className="mb-6 rounded-2xl border border-gold/[0.08] p-10"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(20,18,28,0.9), rgba(14,14,20,0.95))",
+            }}
+          >
+            <Lock size={36} className="mx-auto mb-4 text-cream/15" />
+            <h3 className="mb-2 text-lg font-bold text-cream">
+              Sign in to access your library
+            </h3>
+            <p className="mx-auto mb-5 max-w-sm text-[12px] text-cream/35">
+              Track everything you watch, play, and read. Rate items, organize
+              your collection, and unlock personalized recommendations.
+            </p>
+            <SignInButton mode="modal">
+              <button
+                className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-[12px] font-bold text-fey-black transition-transform active:scale-[0.96]"
+                style={{
+                  background: "linear-gradient(135deg, #c8a44e, #a0832e)",
+                }}
+              >
+                <Compass size={14} /> Sign In to Get Started
+              </button>
+            </SignInButton>
+          </div>
         </div>
       )}
 
-      {/* Content */}
+      {/* Content — only shown for logged-in users */}
       {user && isLoading ? (
         <div className="flex items-center justify-center py-20">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold/20 border-t-gold" />
         </div>
-      ) : (
-        <MediaGrid
-          items={libraryItems}
-          onItemClick={setSelectedItem}
-        />
-      )}
+      ) : user ? (
+        libraryItems.length > 0 ? (
+          <MediaGrid
+            items={libraryItems}
+            onItemClick={setSelectedItem}
+          />
+        ) : (
+          <div className="py-20 text-center">
+            <BookOpen size={32} className="mx-auto mb-3 text-cream/10" />
+            <p className="text-[13px] font-semibold text-cream/30">
+              Your library is empty
+            </p>
+            <p className="mt-1 text-[11px] text-cream/20">
+              Search for anime, games, books, and more to add to your collection.
+            </p>
+          </div>
+        )
+      ) : null}
     </div>
   );
 }

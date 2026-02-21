@@ -52,3 +52,27 @@ export async function getTopAnime(
   const data = await res.json();
   return data.data || [];
 }
+
+export async function getSeasonalAnime(
+  year: number = new Date().getFullYear(),
+  season: "winter" | "spring" | "summer" | "fall" = "winter",
+  limit: number = 20
+) {
+  const res = await fetch(
+    `${JIKAN_BASE}/seasons/${year}/${season}?order_by=score&sort=desc&limit=${limit}`,
+    { next: { revalidate: 3600 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.data || [];
+}
+
+export async function getAnimeByGenre(genreId: number, limit: number = 10) {
+  const res = await fetch(
+    `${JIKAN_BASE}/anime?genres=${genreId}&order_by=score&sort=desc&limit=${limit}`,
+    { next: { revalidate: 3600 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.data || [];
+}

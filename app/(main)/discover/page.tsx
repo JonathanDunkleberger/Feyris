@@ -1,39 +1,66 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Sparkles, Search, Tv, Gamepad2, BookOpen, Monitor, Film } from "lucide-react";
+import { Sparkles, Search, Loader2, Tv, Gamepad2, BookOpen, Monitor, Film, Flame } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { MediaCarousel } from "@/components/media/MediaCarousel";
 import { useAppStore } from "@/stores/app-store";
 import type { MediaItem } from "@/stores/app-store";
-import {
-  ALL_MOCK_MEDIA,
-  TRENDING_ANIME,
-  POPULAR_GAMES,
-  RECOMMENDED_BOOKS,
-  BINGEWORTHY_TV,
-  CLASSIC_FILMS,
-} from "@/lib/mock-data";
+import type { MediaType } from "@/lib/constants";
+
+/* Re-use the same home-carousels endpoint for browsing */
+interface CarouselData {
+  key: string;
+  title: string;
+  type: string;
+  items: MediaItem[];
+}
+
+const ICON_MAP: Record<string, typeof Tv> = {
+  anime: Tv,
+  game: Gamepad2,
+  book: BookOpen,
+  tv: Monitor,
+  film: Film,
+};
 
 function DiscoverContent() {
   const searchParams = useSearchParams();
-  const { setSelectedItem, searchQuery } = useAppStore();
+  const { setSelectedItem, searchQuery, setSearchQuery } = useAppStore();
   const queryFromUrl = searchParams.get("q") || "";
   const activeQuery = queryFromUrl || searchQuery;
 
-  // Search mock data locally
-  const results = useMemo(() => {
-    if (!activeQuery.trim()) return [];
-    const q = activeQuery.toLowerCase();
-    return ALL_MOCK_MEDIA.filter(
-      (item) =>
-        item.title.toLowerCase().includes(q) ||
-        item.author?.toLowerCase().includes(q) ||
-        item.genres.some((g) => g.toLowerCase().includes(q)) ||
-        item.media_type.toLowerCase().includes(q)
-    );
-  }, [activeQuery]);
+  // Sync URL query to store on mount
+  useEffect(() => {
+    if (queryFromUrl) setSearchQuery(queryFromUrl);
+  }, [queryFromUrl, setSearchQuery]);
+
+  // Search results from the real API
+  const { data: searchResults = [], isLoading: isSearching } = useQuery<MediaItem[]>({
+    queryKey: ["discover-search", activeQuery],
+    queryFn: async () => {
+      if (!activeQuery.trim()) return [];
+      const res = await fetch(`/api/search-all?q=${encodeURIComponent(activeQuery)}`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: activeQuery.trim().length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Browse carousels when not searching
+  const { data: carousels = [], isLoading: isLoadingCarousels } = useQuery<CarouselData[]>({
+    queryKey: ["home-carousels"],
+    queryFn: async () => {
+      const res = await fetch("/api/home-carousels");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 30 * 60 * 1000,
+    enabled: !activeQuery.trim(),
+  });
 
   const hasQuery = activeQuery.trim().length > 0;
 
@@ -65,54 +92,51 @@ function DiscoverContent() {
             </p>
           </div>
 
-          {/* Browseable carousels */}
-          <MediaCarousel
-            title="Trending Anime"
-            items={TRENDING_ANIME}
-            onItemClick={setSelectedItem}
-            icon={Tv}
-            type="anime"
-          />
-          <MediaCarousel
-            title="Popular Games"
-            items={POPULAR_GAMES}
-            onItemClick={setSelectedItem}
-            icon={Gamepad2}
-            type="game"
-          />
-          <MediaCarousel
-            title="Recommended Books"
-            items={RECOMMENDED_BOOKS}
-            onItemClick={setSelectedItem}
-            icon={BookOpen}
-            type="book"
-          />
-          <MediaCarousel
-            title="Binge-Worthy TV"
-            items={BINGEWORTHY_TV}
-            onItemClick={setSelectedItem}
-            icon={Monitor}
-            type="tv"
-          />
-          <MediaCarousel
-            title="Classic Films"
-            items={CLASSIC_FILMS}
-            onItemClick={setSelectedItem}
-            icon={Film}
-            type="film"
-          />
+          {/* Browseable carousels from real APIs */}
+          {isLoadingCarousels ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="mb-6">
+                <div className="mb-3 h-5 w-48 animate-pulse rounded bg-white/[0.04]" />
+                <div className="flex gap-3 overflow-hidden">
+                  {Array.from({ length: 8 }).map((_, j) => (
+                    <div
+                      key={j}
+                      className="h-[248px] w-[172px] shrink-0 animate-pulse rounded-xl bg-white/[0.03]"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            carousels.map((c) => (
+              <MediaCarousel
+                key={c.key}
+                title={c.title}
+                items={c.items}
+                onItemClick={setSelectedItem}
+                icon={ICON_MAP[c.type] || Flame}
+                type={c.type as MediaType}
+              />
+            ))
+          )}
         </>
       )}
 
       {hasQuery && (
         <div>
           <div className="mb-4 flex items-center gap-2">
-            <Search size={14} className="text-cream/30" />
+            {isSearching ? (
+              <Loader2 size={14} className="animate-spin text-gold" />
+            ) : (
+              <Search size={14} className="text-cream/30" />
+            )}
             <span className="text-[13px] text-cream/50">
-              Results for &ldquo;{activeQuery}&rdquo;
+              {isSearching
+                ? `Searching for "${activeQuery}"...`
+                : `${searchResults.length} results for "${activeQuery}"`}
             </span>
           </div>
-          {results.length === 0 ? (
+          {!isSearching && searchResults.length === 0 ? (
             <div className="py-20 text-center">
               <Search size={32} className="mx-auto mb-3 text-cream/10" />
               <p className="text-[13px] font-semibold text-cream/30">
@@ -124,7 +148,7 @@ function DiscoverContent() {
             </div>
           ) : (
             <MediaGrid
-              items={results as MediaItem[]}
+              items={searchResults}
               onItemClick={setSelectedItem}
             />
           )}

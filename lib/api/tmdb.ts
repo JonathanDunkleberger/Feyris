@@ -49,6 +49,29 @@ export async function getTMDBTrending(
   return data.results || [];
 }
 
+export async function discoverTMDB(
+  type: "movie" | "tv",
+  params: Record<string, string> = {}
+) {
+  const res = await fetch(
+    tmdbUrl(`/discover/${type}`, params),
+    { next: { revalidate: 3600 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results || [];
+}
+
+export async function getTMDBOnAir() {
+  const res = await fetch(
+    tmdbUrl("/tv/on_the_air"),
+    { next: { revalidate: 3600 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results || [];
+}
+
 export function tmdbImageUrl(
   path: string | null | undefined,
   size: string = "w500"

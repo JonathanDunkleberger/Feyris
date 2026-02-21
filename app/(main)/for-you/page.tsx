@@ -13,16 +13,13 @@ import {
   Shuffle,
 } from "lucide-react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { MediaCarousel } from "@/components/media/MediaCarousel";
 import { TasteRadar } from "@/components/recommendations/TasteRadar";
 import { CatLogo } from "@/components/shared/CatLogo";
 import { FOR_YOU_THRESHOLDS } from "@/lib/constants";
-import { useAppStore } from "@/stores/app-store";
-import {
-  TRENDING_ANIME,
-  POPULAR_GAMES,
-  RECOMMENDED_BOOKS,
-} from "@/lib/mock-data";
+import { useAppStore, type MediaItem } from "@/stores/app-store";
+import type { MediaType } from "@/lib/constants";
 
 // Demo data for taste radar
 const DEMO_TASTE = [
@@ -36,9 +33,32 @@ const DEMO_TASTE = [
   { dimension: "Mystery", value: 4 },
 ];
 
+interface CarouselData {
+  key: string;
+  title: string;
+  type: string;
+  items: MediaItem[];
+}
+
 export default function ForYouPage() {
   const { setSelectedItem } = useAppStore();
   const [ratedCount] = useState(12); // Demo: show as if user has rated items
+
+  // Fetch real carousels to power the recommendation sections
+  const { data: carousels = [] } = useQuery<CarouselData[]>({
+    queryKey: ["home-carousels"],
+    queryFn: async () => {
+      const res = await fetch("/api/home-carousels");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 30 * 60 * 1000,
+  });
+
+  // Pick specific carousels for the "For You" section
+  const animeCarousel = carousels.find((c) => c.key === "seasonal-anime" || c.key === "airing-anime");
+  const gameCarousel = carousels.find((c) => c.key === "popular-games" || c.key === "new-games");
+  const bookCarousel = carousels.find((c) => c.key === "fiction-books" || c.key === "scifi-books");
 
   // Determine unlock level
   const currentThreshold = FOR_YOU_THRESHOLDS.reduce(
@@ -170,28 +190,34 @@ export default function ForYouPage() {
                 </motion.button>
               </motion.div>
 
-              {/* Recommendation carousels */}
-              <MediaCarousel
-                title="Because You Love Sci-Fi"
-                items={TRENDING_ANIME}
-                onItemClick={setSelectedItem}
-                icon={Star}
-                type="anime"
-              />
-              <MediaCarousel
-                title="Cross-Medium Picks"
-                items={POPULAR_GAMES}
-                onItemClick={setSelectedItem}
-                icon={TrendingUp}
-                type="game"
-              />
-              <MediaCarousel
-                title="Trending in Your Genres"
-                items={RECOMMENDED_BOOKS}
-                onItemClick={setSelectedItem}
-                icon={Sparkles}
-                type="book"
-              />
+              {/* Recommendation carousels — real API data */}
+              {animeCarousel && (
+                <MediaCarousel
+                  title="Because You Love Sci-Fi"
+                  items={animeCarousel.items}
+                  onItemClick={setSelectedItem}
+                  icon={Star}
+                  type={animeCarousel.type as MediaType}
+                />
+              )}
+              {gameCarousel && (
+                <MediaCarousel
+                  title="Cross-Medium Picks"
+                  items={gameCarousel.items}
+                  onItemClick={setSelectedItem}
+                  icon={TrendingUp}
+                  type={gameCarousel.type as MediaType}
+                />
+              )}
+              {bookCarousel && (
+                <MediaCarousel
+                  title="Trending in Your Genres"
+                  items={bookCarousel.items}
+                  onItemClick={setSelectedItem}
+                  icon={Sparkles}
+                  type={bookCarousel.type as MediaType}
+                />
+              )}
             </div>
 
             {/* Sidebar */}

@@ -46,3 +46,24 @@ export function bookCoverUrl(
     links.smallThumbnail
   )?.replace("http://", "https://");
 }
+
+export async function browseBooks(
+  subject: string,
+  maxResults: number = 20
+) {
+  const params = new URLSearchParams({
+    q: `subject:${subject}`,
+    maxResults: String(maxResults),
+    orderBy: "relevance",
+    printType: "books",
+  });
+  const key = process.env.GOOGLE_BOOKS_API_KEY;
+  if (key) params.set("key", key);
+
+  const res = await fetch(`${GOOGLE_BOOKS_BASE}/volumes?${params}`, {
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.items || [];
+}

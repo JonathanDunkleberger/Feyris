@@ -77,6 +77,31 @@ export async function getPopularGames(limit: number = 20) {
   );
 }
 
+export async function getRecentGames(limit: number = 20) {
+  const sixMonthsAgo = Math.floor(
+    (Date.now() - 6 * 30 * 24 * 60 * 60 * 1000) / 1000
+  );
+  return igdbFetch(
+    "/games",
+    `fields name,cover.url,first_release_date,genres.name,
+            rating,summary,involved_companies.company.name;
+     where first_release_date > ${sixMonthsAgo} & rating > 60 & rating_count > 5;
+     sort rating desc;
+     limit ${limit};`
+  );
+}
+
+export async function getTopRatedGames(limit: number = 20) {
+  return igdbFetch(
+    "/games",
+    `fields name,cover.url,first_release_date,genres.name,
+            rating,summary,involved_companies.company.name;
+     where rating_count > 100;
+     sort rating desc;
+     limit ${limit};`
+  );
+}
+
 export function igdbImageUrl(
   url: string | undefined,
   size: string = "cover_big"
