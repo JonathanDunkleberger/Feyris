@@ -1,23 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/api/search(.*)",
-  "/api/search-all(.*)",
-  "/api/trending(.*)",
-  "/api/popular(.*)",
-  "/api/og(.*)",
-  "/api/webhooks(.*)",
-  "/media/(.*)",
-  "/wrapped/(.*)",
-  "/u/(.*)",
+// EVERYTHING is public by default. Only protect write operations.
+const isProtectedRoute = createRouteMatcher([
+  "/settings(.*)",
+  "/onboarding(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
+  if (isProtectedRoute(req)) {
     await auth.protect();
   }
   return NextResponse.next();

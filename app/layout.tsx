@@ -1,7 +1,10 @@
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "./providers";
+
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Feyris — Your Unified Media Universe",
@@ -26,7 +29,7 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className="dark">
-        <body className="bg-fey-black text-cream min-h-screen font-sans antialiased">
+        <body className={`${jakarta.className} bg-fey-black text-cream min-h-screen antialiased`}>
           <Providers>{children}</Providers>
         </body>
       </html>

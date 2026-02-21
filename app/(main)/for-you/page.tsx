@@ -13,14 +13,16 @@ import {
   Shuffle,
 } from "lucide-react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@clerk/nextjs";
 import { MediaCarousel } from "@/components/media/MediaCarousel";
 import { TasteRadar } from "@/components/recommendations/TasteRadar";
-import { EmptyState } from "@/components/shared/EmptyState";
 import { CatLogo } from "@/components/shared/CatLogo";
 import { FOR_YOU_THRESHOLDS } from "@/lib/constants";
-import type { MediaItem } from "@/stores/app-store";
+import { useAppStore } from "@/stores/app-store";
+import {
+  TRENDING_ANIME,
+  POPULAR_GAMES,
+  RECOMMENDED_BOOKS,
+} from "@/lib/mock-data";
 
 // Demo data for taste radar
 const DEMO_TASTE = [
@@ -35,8 +37,8 @@ const DEMO_TASTE = [
 ];
 
 export default function ForYouPage() {
-  const { userId } = useAuth();
-  const [ratedCount] = useState(0); // In production, fetch from API
+  const { setSelectedItem } = useAppStore();
+  const [ratedCount] = useState(12); // Demo: show as if user has rated items
 
   // Determine unlock level
   const currentThreshold = FOR_YOU_THRESHOLDS.reduce(
@@ -171,19 +173,22 @@ export default function ForYouPage() {
               {/* Recommendation carousels */}
               <MediaCarousel
                 title="Because You Love Sci-Fi"
-                items={[]}
+                items={TRENDING_ANIME}
+                onItemClick={setSelectedItem}
                 icon={Star}
                 type="anime"
               />
               <MediaCarousel
                 title="Cross-Medium Picks"
-                items={[]}
+                items={POPULAR_GAMES}
+                onItemClick={setSelectedItem}
                 icon={TrendingUp}
                 type="game"
               />
               <MediaCarousel
                 title="Trending in Your Genres"
-                items={[]}
+                items={RECOMMENDED_BOOKS}
+                onItemClick={setSelectedItem}
                 icon={Sparkles}
                 type="book"
               />
@@ -196,15 +201,25 @@ export default function ForYouPage() {
           </div>
         </div>
       ) : (
-        <EmptyState
-          icon={Lock}
-          title="Unlock Your Recommendations"
-          description={`Rate at least 5 items to unlock personalized cross-medium recommendations. You've rated ${ratedCount} so far.`}
-          action={{
-            label: "Browse & Rate",
-            onClick: () => {},
-          }}
-        />
+        <div className="rounded-xl border border-gold/[0.06] p-8 text-center"
+          style={{ background: "linear-gradient(135deg, rgba(20,18,28,0.9), rgba(14,14,20,0.95))" }}
+        >
+          <Lock size={32} className="mx-auto mb-3 text-cream/15" />
+          <h3 className="mb-1 text-[15px] font-bold text-cream">
+            Unlock Your Recommendations
+          </h3>
+          <p className="mx-auto max-w-sm text-[11.5px] text-cream/30">
+            Rate at least 5 items to unlock personalized cross-medium recommendations.
+            You&apos;ve rated {ratedCount} so far.
+          </p>
+          <Link
+            href="/discover"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[11.5px] font-bold text-fey-black"
+            style={{ background: "linear-gradient(135deg, #c8a44e, #a0832e)" }}
+          >
+            Browse &amp; Rate
+          </Link>
+        </div>
       )}
     </div>
   );

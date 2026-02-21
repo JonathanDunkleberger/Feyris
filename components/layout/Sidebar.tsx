@@ -86,25 +86,37 @@ export function Sidebar() {
       {/* User card */}
       {sidebarOpen && (
         <div className="mx-2 mb-4 rounded-[9px] border border-gold/[0.04] bg-gold/[0.02] p-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-gold to-gold-dark text-[10.5px] font-extrabold text-fey-black">
-              {initials}
-            </div>
-            <div className="flex-1">
-              <div className="text-[11.5px] font-bold text-cream">
-                {user?.fullName || user?.username || "User"}
+          {user ? (
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-gold to-gold-dark text-[10.5px] font-extrabold text-fey-black">
+                {initials}
               </div>
-              <div className="text-[9.5px] text-cream/25">
-                Media Enthusiast
+              <div className="flex-1">
+                <div className="text-[11.5px] font-bold text-cream">
+                  {user.fullName || user.username || "User"}
+                </div>
+                <div className="text-[9.5px] text-cream/25">
+                  Media Enthusiast
+                </div>
               </div>
+              <button
+                onClick={() => signOut()}
+                className="text-cream/15 hover:text-cream/40 transition-colors"
+              >
+                <LogOut size={13} />
+              </button>
             </div>
-            <button
-              onClick={() => signOut()}
-              className="text-cream/15 hover:text-cream/40 transition-colors"
+          ) : (
+            <Link
+              href="/sign-in"
+              className="flex items-center gap-2.5 text-[11.5px] font-bold text-gold hover:text-gold-light transition-colors"
             >
-              <LogOut size={13} />
-            </button>
-          </div>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gold/20 bg-gold/[0.06]">
+                <LogOut size={12} className="rotate-180 text-gold" />
+              </div>
+              <span>Sign In</span>
+            </Link>
+          )}
         </div>
       )}
     </nav>
