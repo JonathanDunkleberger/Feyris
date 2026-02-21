@@ -18,5 +18,14 @@ const nextConfig = {
       { protocol: "https", hostname: "img.clerk.com" },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/discover",
+        destination: "/",
+        permanent: true,
+      },
+    ];
+  },
 };
 module.exports = nextConfig;
