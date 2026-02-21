@@ -70,7 +70,7 @@ export default function ForYouPage() {
       <div className="space-y-6">
         {/* Taste radar + What's Next */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
-          <div>
+          <div className="min-w-0">
             {/* What's Next Picker */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}

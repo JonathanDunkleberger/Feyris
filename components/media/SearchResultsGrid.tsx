@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
 import { Search, X, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
-import { MEDIA_TYPES } from "@/lib/constants";
+import { MediaCard } from "./MediaCard";
 
 export function SearchResultsGrid() {
   const { searchQuery, setSearchQuery, setSelectedItem } = useAppStore();
@@ -44,11 +43,16 @@ export function SearchResultsGrid() {
         <div className="flex items-center gap-2">
           <Search size={20} className="text-gold" />
           <h1 className="text-2xl font-extrabold tracking-tight text-cream">
-            Search Results
+            Search
           </h1>
           <span className="ml-1 text-[13px] text-cream/30">
-            for &ldquo;{searchQuery}&rdquo;
+            &ldquo;{searchQuery}&rdquo;
           </span>
+          {!isLoading && results.length > 0 && (
+            <span className="ml-1 rounded-full bg-gold/10 px-2 py-0.5 text-[11px] font-bold text-gold">
+              {results.length}
+            </span>
+          )}
         </div>
         <button
           onClick={() => setSearchQuery("")}
@@ -66,63 +70,20 @@ export function SearchResultsGrid() {
         </div>
       )}
 
-      {/* Results grid — 16:9 backdrop style like XPrime */}
+      {/* Results grid — MediaCard tiles */}
       {!isLoading && results.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5">
-          {results.map((item) => {
-            const config = MEDIA_TYPES[item.media_type as keyof typeof MEDIA_TYPES];
-            const bgImage = item.backdrop_image_url || item.cover_image_url;
-
-            return (
-              <button
-                key={item.id}
+        <div
+          className="grid gap-4 overflow-visible"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(172px, 1fr))" }}
+        >
+          {results.map((item) => (
+            <div key={item.id} className="overflow-visible">
+              <MediaCard
+                item={item}
                 onClick={() => setSelectedItem(item)}
-                className="group relative overflow-hidden rounded-xl border border-white/[0.04] transition-all hover:border-gold/20 hover:scale-[1.02] focus:outline-none"
-                style={{ aspectRatio: "16/9" }}
-              >
-                {/* Backdrop image */}
-                {bgImage ? (
-                  <Image
-                    src={bgImage}
-                    alt={item.title}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-fey-surface to-fey-black" />
-                )}
-
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
-                {/* Content */}
-                <div className="absolute inset-x-0 bottom-0 p-3">
-                  <h3 className="line-clamp-2 text-[13px] font-bold leading-tight text-white drop-shadow-lg">
-                    {item.title}
-                  </h3>
-                  <div className="mt-1 flex items-center gap-1.5">
-                    {config && (
-                      <span
-                        className="rounded-[3px] px-1 py-[1px] text-[9px] font-bold uppercase"
-                        style={{
-                          background: config.bg || "rgba(200,164,78,0.1)",
-                          color: config.color || "#c8a44e",
-                        }}
-                      >
-                        {config.label}
-                      </span>
-                    )}
-                    {item.year && (
-                      <span className="text-[10px] text-white/50">
-                        {item.year}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+              />
+            </div>
+          ))}
         </div>
       )}
 

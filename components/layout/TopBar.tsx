@@ -66,7 +66,7 @@ export function TopBar() {
           >
             <UserButton.MenuItems>
               <UserButton.Link
-                label="My Collection"
+                label="My Media"
                 labelIcon={<BookMarked size={14} />}
                 href="/collection"
               />

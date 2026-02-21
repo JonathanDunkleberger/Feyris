@@ -21,7 +21,7 @@ export function MediaGrid({ items, onItemClick }: MediaGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-4 overflow-visible py-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
+    <div className="grid gap-4 overflow-visible py-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(172px, 1fr))" }}>
       {items.map((item) => (
         <div key={item.id} className="overflow-visible">
           <MediaCard

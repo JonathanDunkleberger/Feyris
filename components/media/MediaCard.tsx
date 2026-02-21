@@ -32,8 +32,6 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
       onClick={onClick}
       className="group cursor-pointer"
       style={{
-        flex: "0 0 172px",
-        scrollSnapAlign: "start",
         borderRadius: 10,
         overflow: "hidden",
         position: "relative",
@@ -51,14 +49,14 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
       }}
       whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
     >
-      <div className="relative" style={{ width: 172, height: 248 }}>
+      <div className="relative w-full" style={{ aspectRatio: "172 / 248" }}>
         {item.cover_image_url ? (
           <Image
             src={item.cover_image_url}
             alt={item.title}
             fill
             className="object-cover"
-            sizes="172px"
+            sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 172px"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-fey-surface">
