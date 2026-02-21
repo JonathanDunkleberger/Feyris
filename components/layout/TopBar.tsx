@@ -12,7 +12,7 @@ export function TopBar() {
 
   return (
     <header
-      className="f-topbar fixed top-0 right-0 z-50 flex h-14 items-center justify-between border-b border-gold/[0.04] px-6 transition-all duration-300"
+      className="f-topbar fixed top-0 right-0 z-50 flex h-14 items-center justify-between border-b border-gold/[0.04] px-3 lg:px-4 transition-all duration-300"
       style={{
         background:
           "linear-gradient(90deg, rgba(14,14,20,0.97), rgba(10,10,14,0.99))",

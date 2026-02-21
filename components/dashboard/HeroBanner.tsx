@@ -22,7 +22,7 @@ export function HeroBanner({ userName, activeCount = 0 }: HeroBannerProps) {
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 80%, rgba(123,158,201,0.05), transparent 60%)" }} />
 
       {/* Content */}
-      <div className="relative z-10 flex h-full flex-col justify-center px-8 py-8">
+      <div className="relative z-10 flex h-full flex-col justify-center px-4 lg:px-5 py-8">
         <div className="mb-[7px] flex items-center gap-[5px] text-[9.5px] font-bold uppercase tracking-[3px] text-gold">
           <Sparkles size={12} /> Welcome back, {userName}
         </div>

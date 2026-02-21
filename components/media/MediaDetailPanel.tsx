@@ -368,7 +368,7 @@ export function MediaDetailPanel() {
         </div>
 
         {/* ─── BODY ────────────────────────────────────────────────────── */}
-        <div className="px-6 pb-6 pt-4">
+        <div className="px-4 pb-6 pt-4">
           {/* 2. METADATA */}
           {metaLine.length > 0 && (
             <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#f0ebe0]/45">

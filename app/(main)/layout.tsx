@@ -40,7 +40,7 @@ export default function MainLayout({
         `}</style>
         <div className="f-main-offset transition-[margin-left] duration-300">
           <TopBar />
-          <div className="px-4 lg:px-6 pb-24 pt-[70px] md:pb-6">
+          <div className="px-3 lg:px-4 pb-24 pt-[70px] md:pb-6">
             {searchQuery ? <SearchResultsGrid /> : children}
           </div>
         </div>

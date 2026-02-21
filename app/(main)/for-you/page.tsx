@@ -54,16 +54,22 @@ export default function ForYouPage() {
     staleTime: 30 * 60 * 1000,
   });
 
-  // Build a flat pool of all carousel items for Surprise Me
-  const allCarouselItems = useMemo(() => {
+  // Build a flat pool of all items available on the page for Surprise Me
+  // Priority: carousel data from API, then cached items from the store
+  const allItems = useMemo(() => {
     const map = new Map<string, MediaItem>();
+    // 1) Items from loaded carousels
     for (const c of carousels) {
       for (const item of c.items) {
         map.set(item.id, item);
       }
     }
+    // 2) Fallback: cached items from the unified store (items the user has interacted with)
+    for (const [id, item] of Object.entries(cachedItems)) {
+      if (!map.has(id)) map.set(id, item);
+    }
     return Array.from(map.values());
-  }, [carousels]);
+  }, [carousels, cachedItems]);
 
   // Pick specific carousels for the "For You" section
   const animeCarousel = carousels.find((c) => c.key === "seasonal-anime" || c.key === "airing-anime");
@@ -72,28 +78,26 @@ export default function ForYouPage() {
 
   // ── Blended "Surprise Mix" carousel ──
   const blendedMix = useMemo(() => {
-    if (!hasFavorites || allCarouselItems.length === 0) return [];
-    // Shuffle all items and pick up to 20
-    const shuffled = [...allCarouselItems].sort(() => Math.random() - 0.5);
-    // Exclude items user already favorited/watched
+    if (allItems.length === 0) return [];
+    const shuffled = [...allItems].sort(() => Math.random() - 0.5);
     const excluded = new Set([...favorites, ...watched]);
     return shuffled.filter((i) => !excluded.has(i.id)).slice(0, 20);
-  }, [allCarouselItems, favorites, watched, hasFavorites]);
+  }, [allItems, favorites, watched]);
 
-  // ── Surprise Me handler ──
+  // ── Surprise Me handler — picks a random item from already-loaded page data ──
   const handleSurpriseMe = useCallback(() => {
-    if (allCarouselItems.length === 0) return;
+    if (allItems.length === 0) return;
     setSurpriseLoading(true);
-    // Pick a random item, avoid already favorited/watched
+    // Prefer items the user hasn't favorited/watched yet
     const excluded = new Set([...favorites, ...watched]);
-    const candidates = allCarouselItems.filter((i) => !excluded.has(i.id));
-    const pool = candidates.length > 0 ? candidates : allCarouselItems;
+    const candidates = allItems.filter((i) => !excluded.has(i.id));
+    const pool = candidates.length > 0 ? candidates : allItems;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     setTimeout(() => {
-      setSelectedItem(pick);
+      if (pick) setSelectedItem(pick);
       setSurpriseLoading(false);
-    }, 600); // brief delay for fun animation
-  }, [allCarouselItems, favorites, watched, setSelectedItem]);
+    }, 600);
+  }, [allItems, favorites, watched, setSelectedItem]);
 
   // ── Taste Profile ──
   const tasteProfile = useMemo(() => {
@@ -192,7 +196,7 @@ export default function ForYouPage() {
           </p>
           <motion.button
             onClick={handleSurpriseMe}
-            disabled={surpriseLoading || allCarouselItems.length === 0}
+            disabled={surpriseLoading || allItems.length === 0}
             className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-[12px] font-bold text-fey-black disabled:opacity-40"
             style={{
               background:
