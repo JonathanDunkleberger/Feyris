@@ -23,7 +23,7 @@ export default function MainLayout({
 
       {/* Main content */}
       <main
-        className="flex-1 transition-[margin-left] duration-300 md:ml-[62px]"
+        className="flex-1 min-w-0 transition-[margin-left] duration-300 md:ml-[62px]"
         style={{
           marginLeft: undefined, // mobile: 0 via CSS
         }}
