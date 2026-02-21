@@ -65,7 +65,7 @@ export function SearchBar() {
   };
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative w-full max-w-2xl">
       <form onSubmit={handleSubmit}>
         <div
           className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition-all duration-200 ${

@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import {
   Heart,
-  CheckCircle,
+  Check,
   Clock,
   Tv,
   Gamepad2,
@@ -15,15 +15,13 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
-import { useFavorites } from "@/hooks/useFavorites";
-import { useWatched } from "@/hooks/useWatched";
-import { useWatchlist } from "@/hooks/useWatchlist";
+import { useMediaStore } from "@/stores/media-store";
 import { CatLogo } from "@/components/shared/CatLogo";
 import { SignInButton, useUser } from "@clerk/nextjs";
 
 const LIST_TABS = [
   { key: "favorites", label: "Favorites", icon: Heart, color: "#f87171" },
-  { key: "watched", label: "Watched", icon: CheckCircle, color: "#4ade80" },
+  { key: "watched", label: "Watched", icon: Check, color: "#4ade80" },
   { key: "watchlist", label: "Watchlist", icon: Clock, color: "#c8a44e" },
 ] as const;
 
@@ -45,9 +43,10 @@ interface CarouselData {
 
 export default function CollectionPage() {
   const { setSelectedItem } = useAppStore();
-  const { favorites } = useFavorites();
-  const { watched } = useWatched();
-  const { watchlist } = useWatchlist();
+  const favorites = useMediaStore((s) => s.favorites);
+  const watched = useMediaStore((s) => s.watched);
+  const watchlist = useMediaStore((s) => s.watchlist);
+  const cachedItems = useMediaStore((s) => s.items);
   const { isSignedIn } = useUser();
   const [activeList, setActiveList] = useState<"favorites" | "watched" | "watchlist">("favorites");
   const [mediaFilter, setMediaFilter] = useState("all");
@@ -63,16 +62,21 @@ export default function CollectionPage() {
     staleTime: 30 * 60 * 1000,
   });
 
-  // Build map of all known items
+  // Build map of all known items (carousel data + store cache)
   const allItems = useMemo(() => {
     const map = new Map<string, MediaItem>();
+    // Items from store cache (saved when user favorites/watches/etc)
+    for (const [id, item] of Object.entries(cachedItems)) {
+      map.set(id, item);
+    }
+    // Items from carousels (fill in any missing)
     for (const c of carousels) {
       for (const item of c.items) {
-        map.set(item.id, item);
+        if (!map.has(item.id)) map.set(item.id, item);
       }
     }
     return map;
-  }, [carousels]);
+  }, [carousels, cachedItems]);
 
   // Get the right ID list
   const activeIds = activeList === "favorites" ? favorites : activeList === "watched" ? watched : watchlist;

@@ -2,7 +2,7 @@ const JIKAN_BASE = "https://api.jikan.moe/v4";
 
 export async function searchAnime(query: string) {
   const res = await fetch(
-    `${JIKAN_BASE}/anime?q=${encodeURIComponent(query)}&limit=20`,
+    `${JIKAN_BASE}/anime?q=${encodeURIComponent(query)}&order_by=members&sort=desc&limit=20`,
     { next: { revalidate: 300 } }
   );
   if (!res.ok) return [];
@@ -12,7 +12,7 @@ export async function searchAnime(query: string) {
 
 export async function searchManga(query: string) {
   const res = await fetch(
-    `${JIKAN_BASE}/manga?q=${encodeURIComponent(query)}&limit=15`,
+    `${JIKAN_BASE}/manga?q=${encodeURIComponent(query)}&order_by=members&sort=desc&limit=15`,
     { next: { revalidate: 300 } }
   );
   if (!res.ok) return [];

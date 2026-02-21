@@ -5,6 +5,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { MediaDetailPanel } from "@/components/media/MediaDetailPanel";
 import { SearchResultsGrid } from "@/components/media/SearchResultsGrid";
+import { MediaStoreHydrator } from "@/components/shared/MediaStoreHydrator";
 import { useAppStore } from "@/stores/app-store";
 
 export default function MainLayout({
@@ -16,6 +17,7 @@ export default function MainLayout({
 
   return (
     <div className="flex min-h-screen bg-fey-black overflow-x-hidden">
+      <MediaStoreHydrator />
       {/* Sidebar — hidden on mobile via CSS */}
       <div className="hidden md:block">
         <Sidebar />
@@ -38,7 +40,7 @@ export default function MainLayout({
         `}</style>
         <div className="f-main-offset transition-[margin-left] duration-300">
           <TopBar />
-          <div className="px-6 pb-24 pt-[70px] md:pb-6">
+          <div className="px-4 lg:px-6 pb-24 pt-[70px] md:pb-6">
             {searchQuery ? <SearchResultsGrid /> : children}
           </div>
         </div>

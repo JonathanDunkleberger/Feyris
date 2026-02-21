@@ -44,8 +44,9 @@ export async function searchGames(query: string) {
     "/games",
     `search "${query}";
      fields name,cover.url,first_release_date,genres.name,
-            platforms.name,rating,summary,videos.*,screenshots.url,
+            platforms.name,rating,total_rating,summary,videos.*,screenshots.url,
             involved_companies.company.name,involved_companies.developer;
+     sort total_rating desc;
      limit 20;`
   );
 }

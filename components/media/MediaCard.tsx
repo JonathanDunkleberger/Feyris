@@ -3,11 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, CheckCircle, Star, Film } from "lucide-react";
+import { Heart, Check, Star, Film } from "lucide-react";
 import { MEDIA_TYPES } from "@/lib/constants";
 import type { MediaItem } from "@/stores/app-store";
-import { useFavorites } from "@/hooks/useFavorites";
-import { useWatched } from "@/hooks/useWatched";
+import { useMediaStore } from "@/stores/media-store";
 
 interface MediaCardProps {
   item: MediaItem;
@@ -16,13 +15,15 @@ interface MediaCardProps {
 
 export function MediaCard({ item, onClick }: MediaCardProps) {
   const [hovered, setHovered] = useState(false);
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const { isWatched, toggleWatched } = useWatched();
+  const favorites = useMediaStore((s) => s.favorites);
+  const watched = useMediaStore((s) => s.watched);
+  const toggleFavorite = useMediaStore((s) => s.toggleFavorite);
+  const toggleWatched = useMediaStore((s) => s.toggleWatched);
   const config = MEDIA_TYPES[item.media_type as keyof typeof MEDIA_TYPES];
   const tc = config?.color || "#999";
   const TypeIcon = config?.icon || Film;
-  const favorited = isFavorite(item.id);
-  const watched = isWatched(item.id);
+  const favorited = favorites.includes(item.id);
+  const isWatched = watched.includes(item.id);
 
   return (
     <div
@@ -107,7 +108,7 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  toggleFavorite(item.id);
+                  toggleFavorite(item.id, item);
                 }}
                 className="flex h-[26px] w-[26px] items-center justify-center rounded-full"
                 style={{
@@ -123,20 +124,27 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
                 <Heart
                   size={12}
                   className={favorited ? "fill-red-500 text-red-500" : "text-cream/55"}
+                  strokeWidth={favorited ? 0 : 1.5}
                 />
               </motion.button>
-              {/* Watched / CheckCircle */}
+              {/* Watched / Check */}
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  toggleWatched(item.id);
+                  toggleWatched(item.id, item);
                 }}
-                className="flex h-[26px] w-[26px] items-center justify-center rounded-full"
-                style={{
+                className={`flex h-[26px] w-[26px] items-center justify-center rounded-full transition-all ${
+                  isWatched
+                    ? "bg-green-500/20 ring-1 ring-green-500/40"
+                    : ""
+                }`}
+                style={!isWatched ? {
                   background: "rgba(10,10,15,0.65)",
                   backdropFilter: "blur(6px)",
                   border: "1px solid rgba(255,255,255,0.07)",
+                } : {
+                  backdropFilter: "blur(6px)",
                 }}
                 whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}
@@ -144,9 +152,10 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 }}
               >
-                <CheckCircle
+                <Check
                   size={12}
-                  className={watched ? "fill-green-500 text-green-500" : "text-cream/55"}
+                  className={isWatched ? "text-green-400" : "text-cream/55"}
+                  strokeWidth={2.5}
                 />
               </motion.button>
             </motion.div>

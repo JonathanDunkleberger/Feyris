@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, ChevronLeft } from "lucide-react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { CatLogo } from "@/components/shared/CatLogo";
 import { NAV_ITEMS } from "@/lib/constants";
@@ -29,9 +29,9 @@ export function Sidebar() {
       }}
     >
       {/* Logo */}
-      <div
-        className="flex cursor-pointer items-center gap-2.5 px-3.5 py-4 mb-2"
-        onClick={toggleSidebar}
+      <Link
+        href="/"
+        className="flex items-center gap-2.5 px-3.5 py-4 mb-2"
       >
         <CatLogo size={sidebarOpen ? 30 : 26} />
         {sidebarOpen && (
@@ -39,7 +39,16 @@ export function Sidebar() {
             Feyris
           </span>
         )}
-      </div>
+      </Link>
+
+      {/* Sidebar toggle */}
+      <button
+        onClick={toggleSidebar}
+        className="absolute right-2 top-4 flex h-6 w-6 items-center justify-center rounded text-cream/20 hover:text-cream/40 transition-colors"
+        aria-label="Toggle sidebar"
+      >
+        <ChevronLeft size={14} className={`transition-transform ${sidebarOpen ? "" : "rotate-180"}`} />
+      </button>
 
       {/* Nav items */}
       <div className="flex flex-1 flex-col gap-0.5 px-2">

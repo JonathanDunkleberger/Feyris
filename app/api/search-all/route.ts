@@ -144,7 +144,40 @@ export async function GET(request: NextRequest) {
       )
       .flatMap((r) => r.value);
 
-    combined.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
+    // ── Relevance scoring ──────────────────────────────────────────
+    function scoreResult(item: any, query: string): number {
+      const qLower = query.toLowerCase().trim();
+      const title = (item.title || "").toLowerCase();
+      let score = 0;
+
+      // Exact title match = highest priority
+      if (title === qLower) score += 1000;
+      // Title starts with query
+      else if (title.startsWith(qLower)) score += 500;
+      // Title is "Query: Subtitle" or "Query - Subtitle"
+      else if (title.startsWith(qLower + ":") || title.startsWith(qLower + " -")) score += 400;
+      // Query contained in title
+      else if (title.includes(qLower)) score += 200;
+
+      // Rating boost
+      if (item.rating) score += Math.min(item.rating * 0.5, 50);
+
+      // Type priority for mainstream franchises
+      const typePriority: Record<string, number> = {
+        film: 30, tv: 25, anime: 20, game: 15, book: 10, manga: 5,
+      };
+      score += typePriority[item.media_type] || 0;
+
+      // Penalize items where query is small part of long title
+      if (title.length > 0) {
+        const ratio = qLower.length / title.length;
+        score += ratio * 50;
+      }
+
+      return score;
+    }
+
+    combined.sort((a: any, b: any) => scoreResult(b, q) - scoreResult(a, q));
 
     return NextResponse.json(combined.slice(0, 50));
   } catch (error) {

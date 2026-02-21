@@ -7,25 +7,27 @@ import {
   Star,
   TrendingUp,
   Heart,
-  CheckCircle,
+  Check,
   Clock,
   User,
   Film,
   ChevronDown,
   ExternalLink,
   Play,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@clerk/nextjs";
+import { useQuery } from "@tanstack/react-query";
 import { MEDIA_TYPES } from "@/lib/constants";
 import type { MediaItem } from "@/stores/app-store";
 import { useAppStore } from "@/stores/app-store";
-import { useFavorites } from "@/hooks/useFavorites";
-import { useWatched } from "@/hooks/useWatched";
-import { useWatchlist } from "@/hooks/useWatchlist";
-import { useRatings } from "@/hooks/useRatings";
-import { useReviews, type ReviewItem } from "@/hooks/useReviews";
+import { useMediaStore } from "@/stores/media-store";
+import type { ReviewItem } from "@/hooks/useReviews";
 import { RatingSlider } from "@/components/reviews/RatingInput";
+import { MediaCard } from "./MediaCard";
+import { CastCarousel } from "./CastCarousel";
+import { VideoCarousel } from "./VideoCarousel";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function getWatchLabel(type: string) {
@@ -83,12 +85,17 @@ function getRatingSource(mediaType: string): string {
 export function MediaDetailPanel() {
   const { selectedItem, setSelectedItem } = useAppStore();
   const { user, isSignedIn } = useUser();
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const { isWatched, toggleWatched } = useWatched();
-  const { isOnWatchlist, toggleWatchlist, removeFromWatchlist } =
-    useWatchlist();
-  const { getRating, setRating } = useRatings();
-  const { getReviews, addReview } = useReviews();
+  const favorites = useMediaStore((s) => s.favorites);
+  const watched = useMediaStore((s) => s.watched);
+  const watchlist = useMediaStore((s) => s.watchlist);
+  const ratings = useMediaStore((s) => s.ratings);
+  const reviewsMap = useMediaStore((s) => s.reviews);
+  const toggleFavorite = useMediaStore((s) => s.toggleFavorite);
+  const toggleWatched = useMediaStore((s) => s.toggleWatched);
+  const toggleWatchlist = useMediaStore((s) => s.toggleWatchlist);
+  const removeFromWatchlist = useMediaStore((s) => s.removeFromWatchlist);
+  const setRating = useMediaStore((s) => s.setRating);
+  const addReview = useMediaStore((s) => s.addReview);
   const [showReviews, setShowReviews] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [ratingMode, setRatingMode] = useState(false);
@@ -121,53 +128,98 @@ export function MediaDetailPanel() {
   const config = MEDIA_TYPES[item.media_type as keyof typeof MEDIA_TYPES];
   const tc = config?.color || "#999";
   const TypeIcon = config?.icon || Film;
-  const favorited = isFavorite(item.id);
-  const watched = isWatched(item.id);
-  const onWatchlist = isOnWatchlist(item.id);
-  const userRating = getRating(item.id);
-  const reviews = getReviews(item.id);
+  const favorited = favorites.includes(item.id);
+  const isWatchedItem = watched.includes(item.id);
+  const onWatchlist = watchlist.includes(item.id);
+  const userRating = ratings[item.id] ?? 0;
+  const reviews = reviewsMap[item.id] ?? [];
   const ratingSource = getRatingSource(item.media_type);
+
+  // ── Fetch enriched detail data on modal open ──
+  const { data: enrichedItem } = useQuery<MediaItem>({
+    queryKey: ["media-detail", item.slug],
+    queryFn: async () => {
+      const res = await fetch(`/api/media/${item.slug}`);
+      if (!res.ok) return item;
+      return res.json();
+    },
+    enabled: !!item.slug,
+    staleTime: 24 * 60 * 60 * 1000,
+    initialData: item,
+  });
+
+  // Merge enriched data with selected item (enriched takes priority for extended fields)
+  const display = {
+    ...item,
+    ...enrichedItem,
+    // Keep the original id and media_type
+    id: item.id,
+    media_type: item.media_type,
+  };
 
   const onClose = () => setSelectedItem(null);
 
-  const descriptionLong = (item.description?.length || 0) > 250;
+  const descriptionLong = (display.description?.length || 0) > 250;
   const displayDescription = showFullDescription
-    ? item.description
-    : item.description?.slice(0, 250);
+    ? display.description
+    : display.description?.slice(0, 250);
 
   const metaLine = (() => {
     const parts: string[] = [];
-    if (item.author) parts.push(item.author);
-    if (item.runtime) {
-      if (item.media_type === "film") parts.push(`${item.runtime} min`);
-      else if (item.media_type === "anime" || item.media_type === "tv")
-        parts.push(`${item.runtime} episodes`);
-      else if (item.media_type === "book") parts.push(`${item.runtime} pages`);
+    if (display.author) parts.push(display.author);
+    if (display.runtime) {
+      if (display.media_type === "film") parts.push(`${display.runtime} min`);
+      else if (display.media_type === "anime" || display.media_type === "tv")
+        parts.push(`${display.runtime} episodes`);
+      else if (display.media_type === "book") parts.push(`${display.runtime} pages`);
     }
-    if (item.status_text) parts.push(item.status_text);
+    if (display.status_text) parts.push(display.status_text);
     return parts;
+  })();
+
+  // ── Time to consume calculation ──
+  const consumeTime = (() => {
+    switch (display.media_type) {
+      case "anime":
+        if (display.runtime) return `~${Math.round((display.runtime * 24) / 60)} hours to binge`;
+        return null;
+      case "tv":
+        if (display.runtime) return `~${Math.round((display.runtime * 45) / 60)} hours to binge`;
+        return null;
+      case "film":
+        if (display.runtime) return `${Math.floor(display.runtime / 60)}h ${display.runtime % 60}min`;
+        return null;
+      case "book":
+        if (display.runtime) {
+          const hours = Math.round((display.runtime / 250) * 10) / 10;
+          return `~${hours} hours to read (${display.runtime} pages)`;
+        }
+        return null;
+      default:
+        return null;
+    }
   })();
 
   // ── Action handlers with cross-list logic ──
   const handleFavorite = () => {
-    toggleFavorite(item.id);
+    toggleFavorite(item.id, item);
     // Favoriting = you've consumed it → auto-mark watched, remove from watchlist
     if (!favorited) {
-      if (!watched) toggleWatched(item.id);
+      if (!isWatchedItem) toggleWatched(item.id, item);
       if (onWatchlist) removeFromWatchlist(item.id);
     }
   };
 
   const handleWatched = () => {
-    toggleWatched(item.id);
+    toggleWatched(item.id, item);
     // Marking watched → remove from watchlist (you've consumed it)
-    if (!watched && onWatchlist) {
+    if (!isWatchedItem && onWatchlist) {
       removeFromWatchlist(item.id);
     }
   };
 
   const handleWatchlist = () => {
-    toggleWatchlist(item.id);
+    toggleWatchlist(item.id, item);
   };
 
   const handleSubmitReview = () => {
@@ -210,10 +262,10 @@ export function MediaDetailPanel() {
           className="relative w-full overflow-hidden rounded-t-2xl"
           style={{ height: 340 }}
         >
-          {item.backdrop_image_url || item.cover_image_url ? (
+          {(display.backdrop_image_url || display.cover_image_url) ? (
             <Image
-              src={item.backdrop_image_url || item.cover_image_url!}
-              alt={item.title}
+              src={display.backdrop_image_url || display.cover_image_url!}
+              alt={display.title}
               fill
               className="object-cover"
               sizes="900px"
@@ -258,25 +310,30 @@ export function MediaDetailPanel() {
                   className="text-[9.5px] font-bold uppercase"
                   style={{ color: tc }}
                 >
-                  {config?.label || item.media_type}
+                  {config?.label || display.media_type}
                 </span>
               </div>
-              {item.year && (
-                <span className="text-xs text-[#f0ebe0]/40">{item.year}</span>
+              {display.year && (
+                <span className="text-xs text-[#f0ebe0]/40">{display.year}</span>
+              )}
+              {consumeTime && (
+                <span className="text-[10.5px] text-[#f0ebe0]/30">
+                  {consumeTime}
+                </span>
               )}
             </div>
             <h1 className="text-3xl font-black leading-tight text-[#f0ebe0] mb-2">
-              {item.title}
+              {display.title}
             </h1>
-            {item.original_title && item.original_title !== item.title && (
+            {display.original_title && display.original_title !== display.title && (
               <div className="mb-2 text-[12px] italic text-[#f0ebe0]/30">
-                {item.original_title}
+                {display.original_title}
               </div>
             )}
 
             {/* Dual ratings */}
             <div className="flex items-center gap-4 text-sm">
-              {item.rating != null && item.rating > 0 && (
+              {display.rating != null && display.rating > 0 && (
                 <span className="flex items-center gap-1 text-[#f0ebe0]/50">
                   <span className="text-[10px] font-semibold uppercase text-[#f0ebe0]/35">
                     {ratingSource}
@@ -286,7 +343,7 @@ export function MediaDetailPanel() {
                     className="fill-yellow-500 text-yellow-500"
                   />
                   <span className="text-[14px] font-extrabold text-[#f0ebe0]/60">
-                    {(item.rating / 10).toFixed(1)}
+                    {(display.rating / 10).toFixed(1)}
                   </span>
                 </span>
               )}
@@ -301,9 +358,9 @@ export function MediaDetailPanel() {
                   </span>
                 </span>
               )}
-              {item.match != null && item.match > 0 && (
+              {display.match != null && display.match > 0 && (
                 <span className="flex items-center gap-1 text-[12px] font-semibold text-green-400">
-                  <TrendingUp size={13} /> {item.match}% Match
+                  <TrendingUp size={13} /> {display.match}% Match
                 </span>
               )}
             </div>
@@ -326,9 +383,9 @@ export function MediaDetailPanel() {
           )}
 
           {/* 3. GENRES */}
-          {item.genres && item.genres.length > 0 && (
+          {display.genres && display.genres.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-[6px]">
-              {item.genres.map((g) => (
+              {display.genres.map((g) => (
                 <span
                   key={g}
                   className="rounded-[6px] px-[10px] py-[4px] text-[11px] font-medium"
@@ -345,7 +402,7 @@ export function MediaDetailPanel() {
           )}
 
           {/* 4. DESCRIPTION */}
-          {item.description && (
+          {display.description && (
             <div className="mb-4">
               <p className="text-[13px] leading-[1.75] text-[#f0ebe0]/55">
                 {displayDescription}
@@ -376,6 +433,7 @@ export function MediaDetailPanel() {
               <Heart
                 size={16}
                 className={favorited ? "fill-red-400 text-red-400" : ""}
+                strokeWidth={favorited ? 0 : 1.5}
               />
               {favorited ? "Favorited" : "Favorite"}
             </button>
@@ -384,16 +442,21 @@ export function MediaDetailPanel() {
             <button
               onClick={handleWatched}
               className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
-                watched
+                isWatchedItem
                   ? "border border-green-500/30 bg-green-500/[0.12] text-green-400"
                   : "border border-white/[0.06] bg-white/[0.04] text-[#f0ebe0]/60 hover:bg-white/[0.07]"
               }`}
             >
-              <CheckCircle
-                size={16}
-                className={watched ? "fill-green-400 text-green-400" : ""}
-              />
-              {watched
+              <div className={`flex h-[18px] w-[18px] items-center justify-center rounded-full ${
+                isWatchedItem ? "bg-green-500/20 ring-1 ring-green-500/40" : ""
+              }`}>
+                <Check
+                  size={12}
+                  className={isWatchedItem ? "text-green-400" : "text-[#f0ebe0]/60"}
+                  strokeWidth={2.5}
+                />
+              </div>
+              {isWatchedItem
                 ? getWatchedLabel(item.media_type)
                 : getWatchLabel(item.media_type)}
             </button>
@@ -409,7 +472,8 @@ export function MediaDetailPanel() {
             >
               <Clock
                 size={16}
-                className={onWatchlist ? "fill-[#c8a44e] text-[#c8a44e]" : ""}
+                className={onWatchlist ? "text-[#c8a44e]" : ""}
+                strokeWidth={1.5}
               />
               {onWatchlist
                 ? "On Watchlist"
@@ -450,14 +514,24 @@ export function MediaDetailPanel() {
             </AnimatePresence>
           </div>
 
-          {/* 7. WHERE TO WATCH */}
-          {item.where_to_watch && item.where_to_watch.length > 0 && (
+          {/* 7. CAST */}
+          {display.cast && display.cast.length > 0 && display.media_type !== "book" && (
             <div className="mb-5">
               <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
-                Where to Watch
+                {display.media_type === "anime" ? "Characters" : "Cast"}
+              </h3>
+              <CastCarousel cast={display.cast} title={display.media_type === "anime" ? "Characters" : "Cast & Crew"} />
+            </div>
+          )}
+
+          {/* 8. WHERE TO WATCH */}
+          {display.where_to_watch && display.where_to_watch.length > 0 && (
+            <div className="mb-5">
+              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
+                {display.media_type === "game" ? "Platforms" : display.media_type === "book" ? "Where to Read" : "Where to Watch"}
               </h3>
               <div className="flex flex-wrap gap-2">
-                {item.where_to_watch.map((w, i) => (
+                {display.where_to_watch.map((w, i) => (
                   <a
                     key={i}
                     href={w.url || "#"}
@@ -475,15 +549,15 @@ export function MediaDetailPanel() {
                       />
                     )}
                     {w.provider}
-                    <ExternalLink size={10} className="text-[#f0ebe0]/25" />
+                    {w.url && <ExternalLink size={10} className="text-[#f0ebe0]/25" />}
                   </a>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 8. VIDEOS */}
-          {item.videos && item.videos.length > 0 && (
+          {/* 9. VIDEOS */}
+          {display.videos && display.videos.length > 0 && (
             <div className="mb-5">
               <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 Videos
@@ -502,7 +576,7 @@ export function MediaDetailPanel() {
                   WebkitOverflowScrolling: "touch",
                 } as React.CSSProperties}
               >
-                {item.videos.slice(0, 6).map((v) => (
+                {display.videos.slice(0, 6).map((v) => (
                   <a
                     key={v.id}
                     href={`https://www.youtube.com/watch?v=${v.id}`}
@@ -532,8 +606,31 @@ export function MediaDetailPanel() {
             </div>
           )}
 
-          {/* 9. YOU MIGHT ALSO LIKE */}
-          {item.related && item.related.length > 0 && (
+          {/* 10. SEASONS (TV/Anime only) */}
+          {display.seasons && display.seasons.length > 0 && display.seasons.some(s => s.number > 0) && (
+            <div className="mb-5">
+              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
+                Seasons
+              </h3>
+              <div className="space-y-1.5">
+                {display.seasons.filter(s => s.number > 0).map((s) => (
+                  <div
+                    key={s.number}
+                    className="flex items-center gap-3 rounded-lg border border-white/[0.03] bg-white/[0.015] px-3 py-2 text-[12px]"
+                  >
+                    <span className="font-semibold text-[#f0ebe0]/60">{s.name || `Season ${s.number}`}</span>
+                    {s.air_date && (
+                      <span className="text-[#f0ebe0]/25">{s.air_date.slice(0, 4)}</span>
+                    )}
+                    <span className="text-[#f0ebe0]/30">{s.episode_count} episodes</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 11. YOU MIGHT ALSO LIKE */}
+          {display.related && display.related.length > 0 && (
             <div className="mb-5">
               <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 You Might Also Like
@@ -556,7 +653,7 @@ export function MediaDetailPanel() {
                   WebkitOverflowScrolling: "touch",
                 } as React.CSSProperties}
               >
-                {item.related.slice(0, 15).map((rel) => (
+                {display.related!.slice(0, 15).map((rel) => (
                   <div
                     key={rel.id}
                     style={{
