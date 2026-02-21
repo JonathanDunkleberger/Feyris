@@ -1,0 +1,62 @@
+<svg width="512" height="512" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="chibiGrad" x1="16" y1="8" x2="48" y2="56">
+      <stop offset="0%" stop-color="#f0d68a" />
+      <stop offset="50%" stop-color="#c8a44e" />
+      <stop offset="100%" stop-color="#b0903a" />
+    </linearGradient>
+    <radialGradient id="cheekL" cx="14" cy="44" r="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e8927c" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#e8927c" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="cheekR" cx="50" cy="44" r="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e8927c" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#e8927c" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Ears -->
+  <path d="M11 10L7 28H19L11 10Z" fill="url(#chibiGrad)" />
+  <path d="M53 10L57 28H45L53 10Z" fill="url(#chibiGrad)" />
+  <!-- Inner ears -->
+  <path d="M11 16L9 24H15L11 16Z" fill="#e8927c" opacity="0.5" />
+  <path d="M53 16L55 24H49L53 16Z" fill="#e8927c" opacity="0.5" />
+  
+  <!-- Head -->
+  <ellipse cx="32" cy="40" rx="26" ry="22" fill="url(#chibiGrad)" />
+  
+  <!-- Face lighter area -->
+  <ellipse cx="32" cy="44" rx="14" ry="12" fill="#f0e6c8" opacity="0.3" />
+  
+  <!-- Cheek blush -->
+  <circle cx="14" cy="44" r="5" fill="url(#cheekL)" />
+  <circle cx="50" cy="44" r="5" fill="url(#cheekR)" />
+  
+  <!-- Eyes - big and sparkly -->
+  <ellipse cx="22" cy="38" rx="5.5" ry="6.5" fill="#0a0a0f" />
+  <ellipse cx="42" cy="38" rx="5.5" ry="6.5" fill="#0a0a0f" />
+  
+  <!-- Eye color ring -->
+  <ellipse cx="22" cy="38" rx="4" ry="5" fill="none" stroke="#c8a44e" stroke-width="0.5" opacity="0.4" />
+  <ellipse cx="42" cy="38" rx="4" ry="5" fill="none" stroke="#c8a44e" stroke-width="0.5" opacity="0.4" />
+  
+  <!-- Main highlight -->
+  <circle cx="25" cy="35.5" r="2.5" fill="white" />
+  <circle cx="45" cy="35.5" r="2.5" fill="white" />
+  
+  <!-- Secondary highlights -->
+  <circle cx="20" cy="40" r="1.2" fill="white" opacity="0.5" />
+  <circle cx="40" cy="40" r="1.2" fill="white" opacity="0.5" />
+  
+  <!-- Nose -->
+  <ellipse cx="32" cy="45.5" rx="2" ry="1.5" fill="#e8927c" />
+  
+  <!-- Mouth - w shape -->
+  <path d="M28 48C30 50 31.5 50.5 32 49.5C32.5 50.5 34 50 36 48" stroke="#b0903a" stroke-width="1" fill="none" stroke-linecap="round" />
+  
+  <!-- Whiskers -->
+  <line x1="4" y1="42" x2="16" y2="44" stroke="#b0903a" stroke-width="0.6" opacity="0.3" />
+  <line x1="4" y1="48" x2="16" y2="46" stroke="#b0903a" stroke-width="0.6" opacity="0.3" />
+  <line x1="48" y1="44" x2="60" y2="42" stroke="#b0903a" stroke-width="0.6" opacity="0.3" />
+  <line x1="48" y1="46" x2="60" y2="48" stroke="#b0903a" stroke-width="0.6" opacity="0.3" />
+</svg>

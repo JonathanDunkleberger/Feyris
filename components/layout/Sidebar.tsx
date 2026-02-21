@@ -33,9 +33,9 @@ export function Sidebar() {
         className="flex cursor-pointer items-center gap-2.5 px-3.5 py-4 mb-2"
         onClick={toggleSidebar}
       >
-        <CatLogo size={32} />
+        <CatLogo size={sidebarOpen ? 30 : 26} />
         {sidebarOpen && (
-          <span className="text-xl font-black tracking-tight gradient-gold">
+          <span className="text-[17px] font-black tracking-tight text-cream">
             Feyris
           </span>
         )}

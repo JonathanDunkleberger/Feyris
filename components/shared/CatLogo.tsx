@@ -1,39 +1,104 @@
-export function CatLogo({ size = 32 }: { size?: number }) {
+"use client";
+
+export function CatLogo({
+  size = 32,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      <path
-        d="M8 38V16L14 6l4 8h12l4-8 6 10v22c0 2-2 4-6 4H14c-4 0-6-2-6-4z"
-        fill="url(#cg)"
-        opacity="0.9"
-      />
-      <path
-        d="M14 6l4 8h12l4-8"
-        stroke="#c8a44e"
-        strokeWidth="1.5"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <circle cx="18" cy="24" r="2.2" fill="#0a0a0f" />
-      <circle cx="30" cy="24" r="2.2" fill="#0a0a0f" />
-      <path
-        d="M21 30q3 2.5 6 0"
-        stroke="#0a0a0f"
-        strokeWidth="1.3"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <path
-        d="M20 28l16-4.5M20 28l-12-4.5M28 28l-12-4.5M28 28l16-4.5"
-        stroke="#c8a44e"
-        strokeWidth="0.4"
-        opacity="0.25"
-      />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
       <defs>
-        <linearGradient id="cg" x1="8" y1="6" x2="40" y2="42">
-          <stop offset="0%" stopColor="#c8a44e" />
-          <stop offset="100%" stopColor="#8a7235" />
+        <linearGradient
+          id={`chibiGrad-${size}`}
+          x1="16"
+          y1="8"
+          x2="48"
+          y2="56"
+        >
+          <stop offset="0%" stopColor="#f0d68a" />
+          <stop offset="50%" stopColor="#c8a44e" />
+          <stop offset="100%" stopColor="#b0903a" />
         </linearGradient>
+        <radialGradient
+          id={`cheekL-${size}`}
+          cx="14"
+          cy="44"
+          r="5"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="#e8927c" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#e8927c" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient
+          id={`cheekR-${size}`}
+          cx="50"
+          cy="44"
+          r="5"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="#e8927c" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#e8927c" stopOpacity="0" />
+        </radialGradient>
       </defs>
+
+      {/* Ears */}
+      <path d="M11 10L7 28H19L11 10Z" fill={`url(#chibiGrad-${size})`} />
+      <path d="M53 10L57 28H45L53 10Z" fill={`url(#chibiGrad-${size})`} />
+      <path d="M11 16L9 24H15L11 16Z" fill="#e8927c" opacity="0.5" />
+      <path d="M53 16L55 24H49L53 16Z" fill="#e8927c" opacity="0.5" />
+
+      {/* Head */}
+      <ellipse cx="32" cy="40" rx="26" ry="22" fill={`url(#chibiGrad-${size})`} />
+
+      {/* Face lighter area */}
+      <ellipse cx="32" cy="44" rx="14" ry="12" fill="#f0e6c8" opacity="0.3" />
+
+      {/* Cheek blush */}
+      <circle cx="14" cy="44" r="5" fill={`url(#cheekL-${size})`} />
+      <circle cx="50" cy="44" r="5" fill={`url(#cheekR-${size})`} />
+
+      {/* Eyes */}
+      <ellipse cx="22" cy="38" rx="5.5" ry="6.5" fill="#0a0a0f" />
+      <ellipse cx="42" cy="38" rx="5.5" ry="6.5" fill="#0a0a0f" />
+
+      {/* Eye color ring */}
+      <ellipse cx="22" cy="38" rx="4" ry="5" fill="none" stroke="#c8a44e" strokeWidth="0.5" opacity="0.4" />
+      <ellipse cx="42" cy="38" rx="4" ry="5" fill="none" stroke="#c8a44e" strokeWidth="0.5" opacity="0.4" />
+
+      {/* Main highlights */}
+      <circle cx="25" cy="35.5" r="2.5" fill="white" />
+      <circle cx="45" cy="35.5" r="2.5" fill="white" />
+
+      {/* Secondary highlights */}
+      <circle cx="20" cy="40" r="1.2" fill="white" opacity="0.5" />
+      <circle cx="40" cy="40" r="1.2" fill="white" opacity="0.5" />
+
+      {/* Nose */}
+      <ellipse cx="32" cy="45.5" rx="2" ry="1.5" fill="#e8927c" />
+
+      {/* Mouth */}
+      <path
+        d="M28 48C30 50 31.5 50.5 32 49.5C32.5 50.5 34 50 36 48"
+        stroke="#b0903a"
+        strokeWidth="1"
+        fill="none"
+        strokeLinecap="round"
+      />
+
+      {/* Whiskers */}
+      <line x1="4" y1="42" x2="16" y2="44" stroke="#b0903a" strokeWidth="0.6" opacity="0.3" />
+      <line x1="4" y1="48" x2="16" y2="46" stroke="#b0903a" strokeWidth="0.6" opacity="0.3" />
+      <line x1="48" y1="44" x2="60" y2="42" stroke="#b0903a" strokeWidth="0.6" opacity="0.3" />
+      <line x1="48" y1="46" x2="60" y2="48" stroke="#b0903a" strokeWidth="0.6" opacity="0.3" />
     </svg>
   );
 }
