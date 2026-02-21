@@ -27,6 +27,7 @@ export function MediaCarousel({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(true);
+  const [hovered, setHovered] = useState(false);
   const tc =
     type && MEDIA_TYPES[type] ? MEDIA_TYPES[type].color : "#c8a44e";
 
@@ -44,15 +45,27 @@ export function MediaCarousel({
       checkScroll();
       return () => el.removeEventListener("scroll", checkScroll);
     }
-  }, [checkScroll]);
+  }, [checkScroll, items]);
 
-  const scroll = (dir: number) =>
-    scrollRef.current?.scrollBy({ left: dir * 420, behavior: "smooth" });
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = 188; // card width (172) + gap (16)
+    const scrollAmount = cardWidth * 5;
+    el.scrollBy({
+      left: dir === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
 
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="relative mb-[34px]">
+    <section
+      className="relative mb-8 group"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {/* Header */}
       <div className="mb-3 flex items-center gap-2 pl-0.5">
         {IconComp && <IconComp size={17} style={{ color: tc }} />}
@@ -77,48 +90,34 @@ export function MediaCarousel({
 
       {/* Carousel */}
       <div className="relative">
-        {/* Nav buttons */}
+        {/* Left arrow — gradient edge */}
         {canLeft && (
           <button
-            onClick={() => scroll(-1)}
-            className="absolute -left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full transition-all hover:scale-110"
-            style={{
-              background: "rgba(10,10,15,0.92)",
-              border: `1px solid ${tc}30`,
-              color: tc,
-              backdropFilter: "blur(8px)",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
-            }}
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-0 bottom-0 z-20 w-12 flex items-center justify-center bg-gradient-to-r from-[#0a0a0f] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           >
-            <ChevronLeft size={16} />
-          </button>
-        )}
-        {canRight && (
-          <button
-            onClick={() => scroll(1)}
-            className="absolute -right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full transition-all hover:scale-110"
-            style={{
-              background: "rgba(10,10,15,0.92)",
-              border: `1px solid ${tc}30`,
-              color: tc,
-              backdropFilter: "blur(8px)",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
-            }}
-          >
-            <ChevronRight size={16} />
+            <ChevronLeft size={28} className="text-white/80" />
           </button>
         )}
 
+        {/* Right arrow — gradient edge */}
+        {canRight && (
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-0 bottom-0 z-20 w-12 flex items-center justify-center bg-gradient-to-l from-[#0a0a0f] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          >
+            <ChevronRight size={28} className="text-white/80" />
+          </button>
+        )}
+
+        {/* Scrollable track */}
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto px-1 py-4 -my-2"
-          style={{
-            scrollbarWidth: "none",
-            scrollSnapType: "x mandatory",
-          }}
+          className="flex gap-4 overflow-x-auto overflow-y-visible scrollbar-hide scroll-smooth snap-x snap-mandatory py-4 px-1"
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
           {items.map((item) => (
-            <div key={item.id} className="flex-shrink-0 overflow-visible">
+            <div key={item.id} className="flex-shrink-0 snap-start overflow-visible">
               <MediaCard
                 item={item}
                 onClick={() => onItemClick?.(item)}
@@ -127,6 +126,6 @@ export function MediaCarousel({
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

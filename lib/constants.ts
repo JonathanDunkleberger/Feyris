@@ -103,20 +103,18 @@ import {
   Compass,
   Sparkles,
   BarChart3,
-  Settings,
   Wand2,
   Heart,
 } from "lucide-react";
 
 export const NAV_ITEMS = [
   { id: "home", label: "Home", icon: Home, href: "/" },
-  { id: "library", label: "Library", icon: BookMarked, href: "/library" },
   { id: "discover", label: "Discover", icon: Compass, href: "/discover" },
+  { id: "favorites", label: "My Favorites", icon: Heart, href: "/favorites" },
+  { id: "library", label: "My Library", icon: BookMarked, href: "/library" },
   { id: "for-you", label: "For You", icon: Wand2, href: "/for-you" },
-  { id: "favorites", label: "Favorites", icon: Heart, href: "/favorites" },
   { id: "wrapped", label: "Wrapped", icon: Sparkles, href: "/wrapped" },
   { id: "analytics", label: "Analytics", icon: BarChart3, href: "/analytics" },
-  { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
 ] as const;
 
 // ─── Sub-Rating Dimensions ──────────────────────────────────────────────────

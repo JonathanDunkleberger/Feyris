@@ -49,6 +49,20 @@ export async function getTMDBTrending(
   return data.results || [];
 }
 
+export async function getTMDBTrendingPage(
+  type: "movie" | "tv" = "movie",
+  timeWindow: "day" | "week" = "week",
+  page: number = 1
+) {
+  const res = await fetch(
+    tmdbUrl(`/trending/${type}/${timeWindow}`, { page: String(page) }),
+    { next: { revalidate: 3600 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results || [];
+}
+
 export async function discoverTMDB(
   type: "movie" | "tv",
   params: Record<string, string> = {}

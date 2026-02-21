@@ -3,7 +3,7 @@ const GOOGLE_BOOKS_BASE = "https://www.googleapis.com/books/v1";
 export async function searchBooks(query: string) {
   const params = new URLSearchParams({
     q: query,
-    maxResults: "10",
+    maxResults: "20",
     printType: "books",
   });
   const key = process.env.GOOGLE_BOOKS_API_KEY;

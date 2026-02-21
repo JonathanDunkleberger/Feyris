@@ -46,7 +46,7 @@ export async function searchGames(query: string) {
      fields name,cover.url,first_release_date,genres.name,
             platforms.name,rating,summary,videos.*,screenshots.url,
             involved_companies.company.name,involved_companies.developer;
-     limit 10;`
+     limit 20;`
   );
 }
 

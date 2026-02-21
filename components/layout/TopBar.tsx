@@ -1,15 +1,13 @@
 "use client";
 
-import { Bell, SlidersHorizontal } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 import { SearchBar } from "./SearchBar";
+import { CatLogo } from "@/components/shared/CatLogo";
 import { useAppStore } from "@/stores/app-store";
 
 export function TopBar() {
-  const { user } = useUser();
+  const { isSignedIn } = useUser();
   const { sidebarOpen } = useAppStore();
-
-  const firstName = user?.firstName || user?.username || "Explorer";
 
   return (
     <header
@@ -21,28 +19,51 @@ export function TopBar() {
         backdropFilter: "blur(16px)",
       }}
     >
-      {/* Greeting */}
-      <div className="hidden md:block">
-        <h2 className="text-[13.5px] font-bold text-cream">
-          Welcome back,{" "}
-          <span className="gradient-gold">{firstName}</span>
-        </h2>
+      {/* Logo (visible on small screens where sidebar is hidden) */}
+      <div className="flex items-center gap-2 md:hidden">
+        <CatLogo size={24} />
+        <span className="text-base font-black tracking-tight gradient-gold">
+          Feyris
+        </span>
       </div>
+      <div className="hidden md:block" />
 
       {/* Search */}
       <div className="flex-1 md:flex-none md:mx-auto">
         <SearchBar />
       </div>
 
-      {/* Actions */}
+      {/* Auth */}
       <div className="flex items-center gap-2">
-        <button className="relative rounded-lg p-2 text-cream/25 transition-colors hover:bg-gold/[0.04] hover:text-cream/40">
-          <Bell size={15} />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-gold" />
-        </button>
-        <button className="rounded-lg p-2 text-cream/25 transition-colors hover:bg-gold/[0.04] hover:text-cream/40">
-          <SlidersHorizontal size={15} />
-        </button>
+        {!isSignedIn ? (
+          <div className="flex items-center gap-2">
+            <SignInButton mode="modal">
+              <button className="px-3.5 py-1.5 text-[12.5px] font-semibold text-cream/60 hover:text-cream transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="rounded-lg px-3.5 py-1.5 text-[12.5px] font-bold text-fey-black transition-all hover:brightness-110"
+                style={{
+                  background: "linear-gradient(135deg, #c8a44e, #c8a44e99)",
+                }}
+              >
+                Sign Up
+              </button>
+            </SignUpButton>
+          </div>
+        ) : (
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "w-8 h-8",
+                userButtonPopoverCard:
+                  "bg-[#12121a] border border-white/[0.06]",
+              },
+            }}
+            afterSignOutUrl="/"
+          />
+        )}
       </div>
     </header>
   );

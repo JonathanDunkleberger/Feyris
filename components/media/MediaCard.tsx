@@ -2,30 +2,29 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Plus, Eye, Star, Film } from "lucide-react";
+import { Heart, CheckCircle, Star, Film } from "lucide-react";
 import { MEDIA_TYPES } from "@/lib/constants";
 import type { MediaItem } from "@/stores/app-store";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useWatched } from "@/hooks/useWatched";
 
 interface MediaCardProps {
   item: MediaItem;
   onClick?: () => void;
-  enableLink?: boolean;
 }
 
-export function MediaCard({ item, onClick, enableLink = true }: MediaCardProps) {
+export function MediaCard({ item, onClick }: MediaCardProps) {
   const [hovered, setHovered] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { isWatched, toggleWatched } = useWatched();
   const config = MEDIA_TYPES[item.media_type as keyof typeof MEDIA_TYPES];
   const tc = config?.color || "#999";
   const TypeIcon = config?.icon || Film;
   const favorited = isFavorite(item.id);
+  const watched = isWatched(item.id);
 
-  const href = `/media/${item.slug}`;
-
-  const cardContent = (
+  return (
     <motion.div
       layoutId={`media-card-${item.id}`}
       onMouseEnter={() => setHovered(true)}
@@ -129,30 +128,30 @@ export function MediaCard({ item, onClick, enableLink = true }: MediaCardProps) 
                   className={favorited ? "fill-red-500 text-red-500" : "text-cream/55"}
                 />
               </motion.button>
-              {/* Add / View */}
-              {[Plus, Eye].map((Icon, idx) => (
-                <motion.button
-                  key={idx}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                  className="flex h-[26px] w-[26px] items-center justify-center rounded-full"
-                  style={{
-                    background: "rgba(10,10,15,0.65)",
-                    backdropFilter: "blur(6px)",
-                    color: "rgba(224,218,206,0.55)",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                  }}
-                  whileHover={{ scale: 1.15, color: tc }}
-                  whileTap={{ scale: 0.9 }}
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: (idx + 1) * 0.05 }}
-                >
-                  <Icon size={12} />
-                </motion.button>
-              ))}
+              {/* Watched / CheckCircle */}
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  toggleWatched(item.id);
+                }}
+                className="flex h-[26px] w-[26px] items-center justify-center rounded-full"
+                style={{
+                  background: "rgba(10,10,15,0.65)",
+                  backdropFilter: "blur(6px)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+              >
+                <CheckCircle
+                  size={12}
+                  className={watched ? "fill-green-500 text-green-500" : "text-cream/55"}
+                />
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -209,14 +208,4 @@ export function MediaCard({ item, onClick, enableLink = true }: MediaCardProps) 
       </div>
     </motion.div>
   );
-
-  if (enableLink) {
-    return (
-      <Link href={href} className="block" prefetch={false}>
-        {cardContent}
-      </Link>
-    );
-  }
-
-  return cardContent;
 }

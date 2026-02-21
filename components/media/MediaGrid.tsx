@@ -21,7 +21,7 @@ export function MediaGrid({ items, onItemClick }: MediaGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(155px,1fr))] gap-2.5">
+    <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
       {items.map((item) => (
         <MediaCard
           key={item.id}
