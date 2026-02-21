@@ -36,7 +36,7 @@ export function HeroBanner({ userName, activeCount = 0 }: HeroBannerProps) {
         </p>
         <div className="mt-4 flex gap-[7px]">
           <Link
-            href="/discover"
+            href="/"
             className="flex items-center gap-[5px] rounded-[9px] border-none px-[18px] py-[9px] text-[11.5px] font-bold text-fey-black transition-transform active:scale-[0.96]"
             style={{
               background: "linear-gradient(135deg, #c8a44e, #a0832e)",

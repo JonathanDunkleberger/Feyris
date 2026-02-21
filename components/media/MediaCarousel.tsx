@@ -110,14 +110,36 @@ export function MediaCarousel({
           </button>
         )}
 
-        {/* Scrollable track */}
+        {/* Scrollable track — inline styles guarantee scroll works */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto overflow-y-visible scrollbar-hide scroll-smooth snap-x snap-mandatory py-4 px-1"
-          style={{ WebkitOverflowScrolling: "touch" }}
+          className="scrollbar-hide"
+          style={{
+            display: "flex",
+            gap: "16px",
+            overflowX: "auto",
+            overflowY: "visible",
+            scrollBehavior: "smooth",
+            scrollSnapType: "x mandatory",
+            paddingTop: "8px",
+            paddingBottom: "16px",
+            paddingLeft: "4px",
+            paddingRight: "4px",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          } as React.CSSProperties}
         >
           {items.map((item) => (
-            <div key={item.id} className="flex-shrink-0 snap-start overflow-visible">
+            <div
+              key={item.id}
+              style={{
+                flexShrink: 0,
+                scrollSnapAlign: "start",
+                width: "172px",
+                overflow: "visible",
+              }}
+            >
               <MediaCard
                 item={item}
                 onClick={() => onItemClick?.(item)}

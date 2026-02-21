@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
 import { useFavorites } from "@/hooks/useFavorites";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import type { MediaType } from "@/lib/constants";
 
 const FILTER_TYPES = [
@@ -27,6 +28,7 @@ interface CarouselData {
 export default function FavoritesPage() {
   const { setSelectedItem } = useAppStore();
   const { favorites } = useFavorites();
+  const { isSignedIn } = useUser();
   const [activeFilter, setActiveFilter] = useState("all");
 
   // Fetch all carousel data to resolve favorite IDs to full items
@@ -65,6 +67,20 @@ export default function FavoritesPage() {
 
   return (
     <div className="animate-fadeIn">
+      {/* Sync banner */}
+      {!isSignedIn && favorites.length > 0 && (
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-gold/[0.08] bg-gold/[0.03] px-4 py-2.5">
+          <span className="text-[12px] text-cream/40">
+            Sign in to sync your favorites across devices
+          </span>
+          <SignInButton mode="modal">
+            <button className="text-[12px] font-semibold text-gold hover:text-gold/80 transition-colors">
+              Sign In
+            </button>
+          </SignInButton>
+        </div>
+      )}
+
       <div className="mb-1 flex items-center gap-2">
         <Heart size={20} className="text-red-400" />
         <h1 className="text-2xl font-extrabold tracking-tight text-cream">

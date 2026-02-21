@@ -239,7 +239,7 @@ export default function ForYouPage() {
             You&apos;ve rated {ratedCount} so far.
           </p>
           <Link
-            href="/discover"
+            href="/"
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[11.5px] font-bold text-fey-black"
             style={{ background: "linear-gradient(135deg, #c8a44e, #a0832e)" }}
           >

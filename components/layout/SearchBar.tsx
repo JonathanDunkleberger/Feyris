@@ -3,13 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, X, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
 import { useSearch } from "@/hooks/useSearch";
 import { MEDIA_TYPES } from "@/lib/constants";
 
 export function SearchBar() {
-  const router = useRouter();
   const { setSearchQuery, setSelectedItem } = useAppStore();
   const { query, setQuery, results, isLoading } = useSearch();
   const [focused, setFocused] = useState(false);
@@ -37,10 +35,9 @@ export function SearchBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Keep dropdown open — users select from results
     if (query.trim()) {
-      setShowDropdown(false);
       setSearchQuery(query.trim());
-      router.push(`/discover?q=${encodeURIComponent(query.trim())}`);
     }
   };
 

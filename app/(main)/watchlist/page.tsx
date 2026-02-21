@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Tv, Gamepad2, BookOpen, Monitor, Film, CheckCircle } from "lucide-react";
+import { Clock, Tv, Gamepad2, BookOpen, Monitor, Film } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
-import { useWatched } from "@/hooks/useWatched";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { SignInButton, useUser } from "@clerk/nextjs";
 
 const FILTER_TYPES = [
-  { label: "All", value: "all", icon: CheckCircle },
+  { label: "All", value: "all", icon: Clock },
   { label: "Anime", value: "anime", icon: Tv },
   { label: "Games", value: "game", icon: Gamepad2 },
   { label: "Books", value: "book", icon: BookOpen },
@@ -24,13 +24,12 @@ interface CarouselData {
   items: MediaItem[];
 }
 
-export default function LibraryPage() {
+export default function WatchlistPage() {
   const { setSelectedItem } = useAppStore();
-  const { watched } = useWatched();
+  const { watchlist } = useWatchlist();
   const { isSignedIn } = useUser();
   const [activeFilter, setActiveFilter] = useState("all");
 
-  // Fetch carousel data to resolve watched IDs to full items
   const { data: carousels = [] } = useQuery<CarouselData[]>({
     queryKey: ["home-carousels"],
     queryFn: async () => {
@@ -41,7 +40,6 @@ export default function LibraryPage() {
     staleTime: 30 * 60 * 1000,
   });
 
-  // Build map of all known items
   const allItems = useMemo(() => {
     const map = new Map<string, MediaItem>();
     for (const c of carousels) {
@@ -52,25 +50,24 @@ export default function LibraryPage() {
     return map;
   }, [carousels]);
 
-  // Resolve watched IDs to items
-  const watchedItems = useMemo(() => {
+  const watchlistItems = useMemo(() => {
     const items: MediaItem[] = [];
-    for (const id of watched) {
+    for (const id of watchlist) {
       const item = allItems.get(id);
       if (item) items.push(item);
     }
     return activeFilter === "all"
       ? items
       : items.filter((i) => i.media_type === activeFilter);
-  }, [watched, allItems, activeFilter]);
+  }, [watchlist, allItems, activeFilter]);
 
   return (
     <div className="animate-fadeIn">
       {/* Sync banner */}
-      {!isSignedIn && watched.length > 0 && (
+      {!isSignedIn && watchlist.length > 0 && (
         <div className="mb-4 flex items-center justify-between rounded-lg border border-gold/[0.08] bg-gold/[0.03] px-4 py-2.5">
           <span className="text-[12px] text-cream/40">
-            Sign in to sync your library across devices
+            Sign in to sync your watchlist across devices
           </span>
           <SignInButton mode="modal">
             <button className="text-[12px] font-semibold text-gold hover:text-gold/80 transition-colors">
@@ -81,18 +78,18 @@ export default function LibraryPage() {
       )}
 
       <div className="mb-1 flex items-center gap-2">
-        <CheckCircle size={20} className="text-green-400" />
+        <Clock size={20} className="text-[#c8a44e]" />
         <h1 className="text-2xl font-extrabold tracking-tight text-cream">
-          My Library
+          Watchlist
         </h1>
-        {watched.length > 0 && (
-          <span className="ml-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[11px] font-bold text-green-400">
-            {watched.length}
+        {watchlist.length > 0 && (
+          <span className="ml-1 rounded-full bg-gold/10 px-2 py-0.5 text-[11px] font-bold text-gold">
+            {watchlist.length}
           </span>
         )}
       </div>
       <p className="mb-5 text-[12.5px] text-cream/30">
-        Everything you&apos;ve watched, played, and read.
+        Titles you plan to watch, play, or read.
       </p>
 
       {/* Type filter */}
@@ -106,9 +103,13 @@ export default function LibraryPage() {
               onClick={() => setActiveFilter(f.value)}
               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold transition-all"
               style={{
-                background: isActive ? "rgba(200,164,78,0.1)" : "rgba(255,255,255,0.02)",
+                background: isActive
+                  ? "rgba(200,164,78,0.1)"
+                  : "rgba(255,255,255,0.02)",
                 color: isActive ? "#c8a44e" : "rgba(224,218,206,0.35)",
-                border: isActive ? "1px solid rgba(200,164,78,0.15)" : "1px solid rgba(255,255,255,0.04)",
+                border: isActive
+                  ? "1px solid rgba(200,164,78,0.15)"
+                  : "1px solid rgba(255,255,255,0.04)",
               }}
             >
               <Icon size={13} />
@@ -119,11 +120,11 @@ export default function LibraryPage() {
       </div>
 
       {/* Content */}
-      {watchedItems.length > 0 ? (
-        <MediaGrid items={watchedItems} onItemClick={setSelectedItem} />
-      ) : watched.length > 0 ? (
+      {watchlistItems.length > 0 ? (
+        <MediaGrid items={watchlistItems} onItemClick={setSelectedItem} />
+      ) : watchlist.length > 0 ? (
         <div className="py-16 text-center">
-          <CheckCircle size={32} className="mx-auto mb-3 text-cream/10" />
+          <Clock size={32} className="mx-auto mb-3 text-cream/10" />
           <p className="text-[13px] font-semibold text-cream/30">
             No items match this filter
           </p>
@@ -133,13 +134,13 @@ export default function LibraryPage() {
         </div>
       ) : (
         <div className="py-20 text-center">
-          <CheckCircle size={40} className="mx-auto mb-4 text-cream/10" />
+          <Clock size={40} className="mx-auto mb-4 text-cream/10" />
           <h3 className="mb-1.5 text-[16px] font-bold text-cream/40">
-            Your library is empty
+            Your watchlist is empty
           </h3>
           <p className="mx-auto max-w-[320px] text-[12px] text-cream/25">
-            Mark titles as watched to build your library. Your library helps
-            power personalized recommendations across all media types.
+            Add titles to your watchlist from any media page. Keep track of
+            everything you want to watch, play, or read.
           </p>
         </div>
       )}

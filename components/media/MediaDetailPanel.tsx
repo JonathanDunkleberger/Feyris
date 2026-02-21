@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Heart,
   CheckCircle,
+  Clock,
   User,
   Film,
   ChevronDown,
@@ -15,11 +16,13 @@ import {
   Play,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser } from "@clerk/nextjs";
 import { MEDIA_TYPES } from "@/lib/constants";
 import type { MediaItem } from "@/stores/app-store";
 import { useAppStore } from "@/stores/app-store";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useWatched } from "@/hooks/useWatched";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRatings } from "@/hooks/useRatings";
 import { useReviews, type ReviewItem } from "@/hooks/useReviews";
 import { RatingSlider } from "@/components/reviews/RatingInput";
@@ -47,6 +50,21 @@ function getWatchedLabel(type: string) {
   }
 }
 
+function getWatchlistLabel(type: string) {
+  switch (type) {
+    case "anime":
+    case "tv":
+    case "film":
+      return "Want to Watch";
+    case "game":
+      return "Want to Play";
+    case "book":
+      return "Want to Read";
+    default:
+      return "Add to Watchlist";
+  }
+}
+
 function getRatingSource(mediaType: string): string {
   switch (mediaType) {
     case "anime":
@@ -64,13 +82,17 @@ function getRatingSource(mediaType: string): string {
 // ─── Component ──────────────────────────────────────────────────────────────
 export function MediaDetailPanel() {
   const { selectedItem, setSelectedItem } = useAppStore();
+  const { user, isSignedIn } = useUser();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isWatched, toggleWatched } = useWatched();
+  const { isOnWatchlist, toggleWatchlist, removeFromWatchlist } =
+    useWatchlist();
   const { getRating, setRating } = useRatings();
   const { getReviews, addReview } = useReviews();
   const [showReviews, setShowReviews] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [ratingMode, setRatingMode] = useState(false);
+  const [writingReview, setWritingReview] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
 
@@ -88,6 +110,7 @@ export function MediaDetailPanel() {
     setShowReviews(false);
     setShowFullDescription(false);
     setRatingMode(false);
+    setWritingReview(false);
     setReviewText("");
     setReviewRating(0);
   }, [selectedItem?.id]);
@@ -100,6 +123,7 @@ export function MediaDetailPanel() {
   const TypeIcon = config?.icon || Film;
   const favorited = isFavorite(item.id);
   const watched = isWatched(item.id);
+  const onWatchlist = isOnWatchlist(item.id);
   const userRating = getRating(item.id);
   const reviews = getReviews(item.id);
   const ratingSource = getRatingSource(item.media_type);
@@ -111,7 +135,6 @@ export function MediaDetailPanel() {
     ? item.description
     : item.description?.slice(0, 250);
 
-  // Metadata line based on media type
   const metaLine = (() => {
     const parts: string[] = [];
     if (item.author) parts.push(item.author);
@@ -125,21 +148,48 @@ export function MediaDetailPanel() {
     return parts;
   })();
 
+  // ── Action handlers with cross-list logic ──
+  const handleFavorite = () => {
+    toggleFavorite(item.id);
+    // Favoriting = you've consumed it → auto-mark watched, remove from watchlist
+    if (!favorited) {
+      if (!watched) toggleWatched(item.id);
+      if (onWatchlist) removeFromWatchlist(item.id);
+    }
+  };
+
+  const handleWatched = () => {
+    toggleWatched(item.id);
+    // Marking watched → remove from watchlist (you've consumed it)
+    if (!watched && onWatchlist) {
+      removeFromWatchlist(item.id);
+    }
+  };
+
+  const handleWatchlist = () => {
+    toggleWatchlist(item.id);
+  };
+
   const handleSubmitReview = () => {
-    if (!reviewText.trim() || reviewRating <= 0) return;
+    if (reviewRating <= 0) return;
+    const username =
+      isSignedIn && user
+        ? user.username || user.firstName || "User"
+        : "Anonymous";
     addReview(item.id, {
-      user: "You",
+      user: username,
       rating: reviewRating,
       text: reviewText.trim(),
     });
     setReviewText("");
     setReviewRating(0);
+    setWritingReview(false);
   };
 
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[1000] flex items-center justify-center animate-fadeIn"
+      className="fixed inset-0 z-[1000] flex items-center justify-center"
       style={{
         background: "rgba(0,0,0,0.7)",
         backdropFilter: "blur(16px)",
@@ -147,23 +197,18 @@ export function MediaDetailPanel() {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-[94%] max-w-3xl overflow-y-auto animate-slideUp"
+        className="relative w-full max-w-3xl overflow-y-auto rounded-2xl border border-white/[0.05]"
         style={{
-          maxHeight: "92vh",
-          background:
-            "linear-gradient(160deg, rgba(20,20,28,0.96), rgba(12,12,18,0.98))",
-          borderRadius: 20,
-          border: "1px solid rgba(200,164,78,0.08)",
-          boxShadow:
-            "0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)",
-          backdropFilter: "blur(40px)",
+          maxHeight: "95vh",
+          background: "#0a0a0f",
+          boxShadow: "0 0 80px rgba(0,0,0,0.8)",
           scrollbarWidth: "none",
         }}
       >
-        {/* ─── 1. HERO SECTION ─────────────────────────────────────────── */}
+        {/* ─── 1. HERO ─────────────────────────────────────────────────── */}
         <div
-          className="relative overflow-hidden"
-          style={{ height: 280, borderRadius: "20px 20px 0 0" }}
+          className="relative w-full overflow-hidden rounded-t-2xl"
+          style={{ height: 340 }}
         >
           {item.backdrop_image_url || item.cover_image_url ? (
             <Image
@@ -182,25 +227,24 @@ export function MediaDetailPanel() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(12,12,18,0.99) 92%)",
+                "linear-gradient(180deg, transparent 0%, rgba(10,10,15,0.4) 40%, #0a0a0f 100%)",
             }}
           />
 
-          {/* Close button */}
+          {/* Close */}
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-cream transition-colors hover:bg-white/10"
+            className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-black/70"
             style={{
-              background: "rgba(10,10,15,0.55)",
+              background: "rgba(0,0,0,0.5)",
               backdropFilter: "blur(8px)",
-              border: "1px solid rgba(255,255,255,0.07)",
             }}
           >
-            <X size={16} />
+            <X size={16} className="text-white/80" />
           </button>
 
-          {/* Title area */}
-          <div className="absolute bottom-[20px] left-[24px] right-[24px]">
+          {/* Title overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-6">
             <div className="mb-2 flex items-center gap-2">
               <div
                 className="flex items-center gap-[3px] rounded-[5px] px-2 py-[3px]"
@@ -218,37 +262,37 @@ export function MediaDetailPanel() {
                 </span>
               </div>
               {item.year && (
-                <span className="text-[12px] text-cream/45">{item.year}</span>
+                <span className="text-xs text-[#f0ebe0]/40">{item.year}</span>
               )}
             </div>
-            <h2 className="text-[28px] font-extrabold leading-tight tracking-tight text-cream">
+            <h1 className="text-3xl font-black leading-tight text-[#f0ebe0] mb-2">
               {item.title}
-            </h2>
+            </h1>
             {item.original_title && item.original_title !== item.title && (
-              <div className="mt-0.5 text-[12px] italic text-cream/30">
+              <div className="mb-2 text-[12px] italic text-[#f0ebe0]/30">
                 {item.original_title}
               </div>
             )}
 
-            {/* ─── Dual Ratings ─────────────────────────────── */}
-            <div className="mt-2 flex items-center gap-4">
+            {/* Dual ratings */}
+            <div className="flex items-center gap-4 text-sm">
               {item.rating != null && item.rating > 0 && (
-                <span className="flex items-center gap-1 text-cream/50">
-                  <span className="text-[10px] font-semibold uppercase text-cream/35">
+                <span className="flex items-center gap-1 text-[#f0ebe0]/50">
+                  <span className="text-[10px] font-semibold uppercase text-[#f0ebe0]/35">
                     {ratingSource}
                   </span>
                   <Star
                     size={12}
                     className="fill-yellow-500 text-yellow-500"
                   />
-                  <span className="text-[14px] font-extrabold text-cream/60">
+                  <span className="text-[14px] font-extrabold text-[#f0ebe0]/60">
                     {(item.rating / 10).toFixed(1)}
                   </span>
                 </span>
               )}
               {userRating > 0 && (
-                <span className="flex items-center gap-1 text-gold">
-                  <span className="text-[10px] font-semibold uppercase text-gold/60">
+                <span className="flex items-center gap-1 text-[#c8a44e]">
+                  <span className="text-[10px] font-semibold uppercase text-[#c8a44e]/60">
                     Feyris
                   </span>
                   <Star size={12} className="fill-[#c8a44e] text-[#c8a44e]" />
@@ -258,7 +302,7 @@ export function MediaDetailPanel() {
                 </span>
               )}
               {item.match != null && item.match > 0 && (
-                <span className="flex items-center gap-1 text-[12px] font-semibold text-match">
+                <span className="flex items-center gap-1 text-[12px] font-semibold text-green-400">
                   <TrendingUp size={13} /> {item.match}% Match
                 </span>
               )}
@@ -266,24 +310,22 @@ export function MediaDetailPanel() {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-[24px] pb-[24px] pt-[16px]">
-          {/* ─── 2. METADATA ROW ────────────────────────────────────────── */}
+        {/* ─── BODY ────────────────────────────────────────────────────── */}
+        <div className="px-6 pb-6 pt-4">
+          {/* 2. METADATA */}
           {metaLine.length > 0 && (
-            <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-cream/45">
-              <User size={12} className="text-cream/25" />
+            <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#f0ebe0]/45">
+              <User size={12} className="text-[#f0ebe0]/25" />
               {metaLine.map((part, i) => (
                 <span key={i} className="flex items-center gap-1">
-                  {i > 0 && (
-                    <span className="text-cream/15">&middot;</span>
-                  )}
-                  <span className="text-cream/60">{part}</span>
+                  {i > 0 && <span className="text-[#f0ebe0]/15">&middot;</span>}
+                  <span className="text-[#f0ebe0]/60">{part}</span>
                 </span>
               ))}
             </div>
           )}
 
-          {/* ─── 3. GENRES ──────────────────────────────────────────────── */}
+          {/* 3. GENRES */}
           {item.genres && item.genres.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-[6px]">
               {item.genres.map((g) => (
@@ -302,17 +344,17 @@ export function MediaDetailPanel() {
             </div>
           )}
 
-          {/* ─── 4. DESCRIPTION ─────────────────────────────────────────── */}
+          {/* 4. DESCRIPTION */}
           {item.description && (
             <div className="mb-4">
-              <p className="text-[13px] leading-[1.75] text-cream/55">
+              <p className="text-[13px] leading-[1.75] text-[#f0ebe0]/55">
                 {displayDescription}
                 {descriptionLong && !showFullDescription && "..."}
               </p>
               {descriptionLong && (
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="mt-1 text-[11px] font-semibold text-gold/60 hover:text-gold transition-colors"
+                  className="mt-1 text-[11px] font-semibold text-[#c8a44e]/60 hover:text-[#c8a44e] transition-colors"
                 >
                   {showFullDescription ? "Show less" : "Read more"}
                 </button>
@@ -320,46 +362,66 @@ export function MediaDetailPanel() {
             </div>
           )}
 
-          {/* ─── 5. TWO ACTION BUTTONS ──────────────────────────────────── */}
-          <div className="mb-5 flex gap-3">
+          {/* 5. THREE ACTION BUTTONS */}
+          <div className="mb-5 flex flex-wrap gap-3">
+            {/* Favorite */}
             <button
-              onClick={() => toggleFavorite(item.id)}
+              onClick={handleFavorite}
               className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
                 favorited
                   ? "border border-red-500/30 bg-red-500/[0.12] text-red-400"
-                  : "border border-white/[0.06] bg-white/[0.04] text-cream/60 hover:bg-white/[0.07]"
+                  : "border border-white/[0.06] bg-white/[0.04] text-[#f0ebe0]/60 hover:bg-white/[0.07]"
               }`}
             >
               <Heart
                 size={16}
-                className={favorited ? "fill-red-400" : ""}
+                className={favorited ? "fill-red-400 text-red-400" : ""}
               />
               {favorited ? "Favorited" : "Favorite"}
             </button>
 
+            {/* Watched */}
             <button
-              onClick={() => toggleWatched(item.id)}
+              onClick={handleWatched}
               className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
                 watched
                   ? "border border-green-500/30 bg-green-500/[0.12] text-green-400"
-                  : "border border-white/[0.06] bg-white/[0.04] text-cream/60 hover:bg-white/[0.07]"
+                  : "border border-white/[0.06] bg-white/[0.04] text-[#f0ebe0]/60 hover:bg-white/[0.07]"
               }`}
             >
               <CheckCircle
                 size={16}
-                className={watched ? "fill-green-400" : ""}
+                className={watched ? "fill-green-400 text-green-400" : ""}
               />
               {watched
                 ? getWatchedLabel(item.media_type)
                 : getWatchLabel(item.media_type)}
             </button>
+
+            {/* Watchlist */}
+            <button
+              onClick={handleWatchlist}
+              className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
+                onWatchlist
+                  ? "border border-[#c8a44e]/30 bg-[#c8a44e]/[0.12] text-[#c8a44e]"
+                  : "border border-white/[0.06] bg-white/[0.04] text-[#f0ebe0]/60 hover:bg-white/[0.07]"
+              }`}
+            >
+              <Clock
+                size={16}
+                className={onWatchlist ? "fill-[#c8a44e] text-[#c8a44e]" : ""}
+              />
+              {onWatchlist
+                ? "On Watchlist"
+                : getWatchlistLabel(item.media_type)}
+            </button>
           </div>
 
-          {/* ─── 6. RATE THIS ───────────────────────────────────────────── */}
+          {/* 6. YOUR RATING */}
           <div className="mb-5">
             <button
               onClick={() => setRatingMode(!ratingMode)}
-              className="flex items-center gap-1.5 text-[12px] font-bold text-cream/40 hover:text-cream/60 transition-colors"
+              className="flex items-center gap-1.5 text-[12px] font-bold text-[#f0ebe0]/40 hover:text-[#f0ebe0]/60 transition-colors"
             >
               <Star size={14} />
               {userRating > 0
@@ -376,7 +438,7 @@ export function MediaDetailPanel() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-2 overflow-hidden rounded-xl border border-gold/10 bg-gold/[0.03] p-4"
+                  className="mt-2 overflow-hidden rounded-xl border border-[#c8a44e]/10 bg-[#c8a44e]/[0.03] p-4"
                 >
                   <RatingSlider
                     value={userRating}
@@ -388,10 +450,10 @@ export function MediaDetailPanel() {
             </AnimatePresence>
           </div>
 
-          {/* ─── 7. WHERE TO WATCH/PLAY/BUY ─────────────────────────────── */}
+          {/* 7. WHERE TO WATCH */}
           {item.where_to_watch && item.where_to_watch.length > 0 && (
             <div className="mb-5">
-              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-cream/30">
+              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 Where to Watch
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -401,7 +463,7 @@ export function MediaDetailPanel() {
                     href={w.url || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-[11px] font-medium text-cream/60 transition-colors hover:bg-white/[0.06]"
+                    className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-[11px] font-medium text-[#f0ebe0]/60 transition-colors hover:bg-white/[0.06]"
                   >
                     {w.logo_url && (
                       <Image
@@ -413,45 +475,38 @@ export function MediaDetailPanel() {
                       />
                     )}
                     {w.provider}
-                    <ExternalLink size={10} className="text-cream/25" />
+                    <ExternalLink size={10} className="text-[#f0ebe0]/25" />
                   </a>
                 ))}
               </div>
             </div>
           )}
 
-          {/* ─── 8. TRAILERS & VIDEOS ───────────────────────────────────── */}
+          {/* 8. VIDEOS */}
           {item.videos && item.videos.length > 0 && (
             <div className="mb-5">
-              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-cream/30">
+              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 Videos
               </h3>
-              <div
-                className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
-                style={{ WebkitOverflowScrolling: "touch" }}
-              >
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                 {item.videos.slice(0, 6).map((v) => (
                   <a
                     key={v.id}
                     href={`https://www.youtube.com/watch?v=${v.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group/vid relative flex-shrink-0 overflow-hidden rounded-lg"
-                    style={{ width: 200, height: 112 }}
+                    className="group/vid relative flex-shrink-0 cursor-pointer overflow-hidden rounded-lg"
+                    style={{ width: 240, height: 135 }}
                   >
                     <Image
                       src={v.thumbnail}
                       alt={v.title}
                       fill
                       className="object-cover"
-                      sizes="200px"
+                      sizes="240px"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/vid:opacity-100">
-                      <Play
-                        size={28}
-                        className="text-white"
-                        fill="white"
-                      />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover/vid:bg-black/50">
+                      <Play size={32} className="text-white fill-white" />
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-2 pb-1.5 pt-4">
                       <span className="line-clamp-1 text-[10px] font-medium text-white/80">
@@ -464,17 +519,14 @@ export function MediaDetailPanel() {
             </div>
           )}
 
-          {/* ─── 9. SIMILAR / RELATED ───────────────────────────────────── */}
+          {/* 9. YOU MIGHT ALSO LIKE */}
           {item.related && item.related.length > 0 && (
             <div className="mb-5">
-              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-cream/30">
+              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 You Might Also Like
               </h3>
-              <div
-                className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
-                style={{ WebkitOverflowScrolling: "touch" }}
-              >
-                {item.related.slice(0, 8).map((rel) => (
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                {item.related.slice(0, 10).map((rel) => (
                   <button
                     key={rel.id}
                     onClick={() => setSelectedItem(rel)}
@@ -490,7 +542,7 @@ export function MediaDetailPanel() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-fey-surface text-[10px] text-cream/20">
+                      <div className="flex h-full w-full items-center justify-center bg-fey-surface text-[10px] text-[#f0ebe0]/20">
                         {rel.title}
                       </div>
                     )}
@@ -500,110 +552,125 @@ export function MediaDetailPanel() {
             </div>
           )}
 
-          {/* ─── 10. REVIEWS SECTION (collapsible) ──────────────────────── */}
-          <div className="border-t border-white/[0.04] pt-4">
-            <button
-              onClick={() => setShowReviews(!showReviews)}
-              className="flex w-full items-center justify-between py-1 text-left"
-            >
-              <span className="text-[13px] font-bold text-cream/60">
-                Reviews{" "}
+          {/* 10. REVIEWS */}
+          <div className="border-t border-white/[0.04] mt-6 pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-[#f0ebe0]/80">
+                Community Reviews
                 {reviews.length > 0 && (
-                  <span className="text-cream/30">({reviews.length})</span>
+                  <span className="ml-2 text-xs font-normal text-[#f0ebe0]/30">
+                    ({reviews.length})
+                  </span>
                 )}
-              </span>
-              <ChevronDown
-                size={16}
-                className={`text-cream/40 transition-transform ${showReviews ? "rotate-180" : ""}`}
-              />
-            </button>
+              </h3>
+              <button
+                onClick={() => setWritingReview(!writingReview)}
+                className="text-xs font-semibold text-[#c8a44e] hover:text-[#c8a44e]/80 transition-colors"
+              >
+                Write a Review
+              </button>
+            </div>
 
+            {/* Write review form */}
             <AnimatePresence>
-              {showReviews && (
+              {writingReview && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-3 overflow-hidden"
+                  className="mb-6 overflow-hidden"
                 >
-                  {/* Existing reviews */}
-                  {reviews.length > 0 ? (
-                    <div className="mb-4 space-y-3">
-                      {reviews.map((r: ReviewItem) => (
-                        <div
-                          key={r.id}
-                          className="rounded-xl border border-white/[0.04] bg-white/[0.015] p-4"
-                        >
-                          <div className="mb-2 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gold/10 text-[9px] font-bold text-gold">
-                                {r.user.slice(0, 2).toUpperCase()}
-                              </div>
-                              <span className="text-[11px] font-semibold text-cream/60">
-                                @{r.user}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Star
-                                size={10}
-                                className="fill-gold text-gold"
-                              />
-                              <span className="text-[11px] font-bold text-gold">
-                                {r.rating}
-                              </span>
-                            </div>
-                          </div>
-                          <p className="text-[12px] leading-relaxed text-cream/45">
-                            {r.text}
-                          </p>
-                          <div className="mt-2 text-[10px] text-cream/20">
-                            {r.date}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="mb-4 rounded-xl border border-white/[0.04] bg-white/[0.015] p-5 text-center">
-                      <p className="text-[12px] text-cream/30">
-                        No reviews yet. Be the first to share your thoughts.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Write a Review */}
                   <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-4">
-                    <h4 className="mb-3 text-[12px] font-bold text-cream/50">
-                      Write a Review
-                    </h4>
                     <div className="mb-3">
                       <RatingSlider
                         value={reviewRating}
                         onChange={setReviewRating}
-                        label="Rating"
+                        label="Your rating"
                       />
                     </div>
                     <textarea
+                      placeholder="Share your thoughts... (optional)"
                       value={reviewText}
                       onChange={(e) => setReviewText(e.target.value)}
-                      placeholder="What did you think?"
+                      maxLength={2000}
                       rows={3}
-                      className="mb-3 w-full resize-none rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[12px] text-cream placeholder:text-cream/20 outline-none focus:border-gold/20"
+                      className="mb-3 w-full resize-none rounded-lg border border-white/[0.06] bg-transparent px-3 py-2.5 text-sm text-[#f0ebe0] placeholder:text-[#f0ebe0]/20 focus:border-[#c8a44e]/30 focus:outline-none"
                     />
-                    <button
-                      onClick={handleSubmitReview}
-                      disabled={!reviewText.trim() || reviewRating <= 0}
-                      className="rounded-lg px-4 py-2 text-[12px] font-bold text-fey-black transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #c8a44e, #c8a44eaa)",
-                      }}
-                    >
-                      Submit Review
-                    </button>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#f0ebe0]/20">
+                        {isSignedIn
+                          ? `Posting as ${user?.username || user?.firstName || "User"}`
+                          : "Posting as Anonymous"}
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setWritingReview(false)}
+                          className="px-3 py-1.5 text-xs text-[#f0ebe0]/40 hover:text-[#f0ebe0]/60"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSubmitReview}
+                          disabled={reviewRating <= 0}
+                          className="rounded-lg px-4 py-1.5 text-xs font-bold text-[#0a0a0f] transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
+                          style={{
+                            background: "#c8a44e",
+                          }}
+                        >
+                          Post Review
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Review list */}
+            {reviews.length === 0 ? (
+              <p className="text-sm text-[#f0ebe0]/20 text-center py-6">
+                No reviews yet. Be the first!
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {[...reviews]
+                  .sort((a, b) => (b.helpful || 0) - (a.helpful || 0))
+                  .map((r: ReviewItem) => (
+                    <div
+                      key={r.id}
+                      className="rounded-xl border border-white/[0.03] bg-white/[0.015] p-4"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#c8a44e]/20">
+                            <User size={12} className="text-[#c8a44e]" />
+                          </div>
+                          <span className="text-xs font-semibold text-[#f0ebe0]/70">
+                            {r.user || "Anonymous"}
+                          </span>
+                          <span className="text-xs text-[#f0ebe0]/20">
+                            {r.date}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Star
+                            size={11}
+                            className="fill-[#c8a44e] text-[#c8a44e]"
+                          />
+                          <span className="text-xs font-bold text-[#c8a44e]">
+                            {r.rating}
+                          </span>
+                        </div>
+                      </div>
+                      {r.text && (
+                        <p className="text-sm leading-relaxed text-[#f0ebe0]/50">
+                          {r.text}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
