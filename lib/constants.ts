@@ -105,6 +105,7 @@ import {
   BarChart3,
   Settings,
   Wand2,
+  Heart,
 } from "lucide-react";
 
 export const NAV_ITEMS = [
@@ -112,6 +113,7 @@ export const NAV_ITEMS = [
   { id: "library", label: "Library", icon: BookMarked, href: "/library" },
   { id: "discover", label: "Discover", icon: Compass, href: "/discover" },
   { id: "for-you", label: "For You", icon: Wand2, href: "/for-you" },
+  { id: "favorites", label: "Favorites", icon: Heart, href: "/favorites" },
   { id: "wrapped", label: "Wrapped", icon: Sparkles, href: "/wrapped" },
   { id: "analytics", label: "Analytics", icon: BarChart3, href: "/analytics" },
   { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
@@ -189,35 +191,35 @@ export const IMPORT_PLATFORMS: Record<ImportPlatform, ImportPlatformConfig> = {
   goodreads: {
     label: "Goodreads",
     color: "#553B08",
-    icon: "📚",
+    icon: "book-open",
     acceptedTypes: ["book"],
     fileFormat: "CSV export from Goodreads",
   },
   myanimelist: {
     label: "MyAnimeList",
     color: "#2E51A2",
-    icon: "🎌",
+    icon: "tv",
     acceptedTypes: ["anime", "manga"],
     fileFormat: "XML or CSV export from MAL",
   },
   steam: {
     label: "Steam",
     color: "#1B2838",
-    icon: "🎮",
+    icon: "gamepad-2",
     acceptedTypes: ["game"],
     fileFormat: "Steam profile URL or CSV",
   },
   letterboxd: {
     label: "Letterboxd",
     color: "#00E054",
-    icon: "🎬",
+    icon: "film",
     acceptedTypes: ["film"],
     fileFormat: "CSV export from Letterboxd",
   },
   imdb: {
     label: "IMDb",
     color: "#F5C518",
-    icon: "⭐",
+    icon: "star",
     acceptedTypes: ["film", "tv"],
     fileFormat: "CSV export from IMDb",
   },

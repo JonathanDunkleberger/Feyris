@@ -111,18 +111,19 @@ export function MediaCarousel({
 
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto px-0.5 py-1 pb-2"
+          className="flex gap-3 overflow-x-auto px-1 py-4 -my-2"
           style={{
             scrollbarWidth: "none",
             scrollSnapType: "x mandatory",
           }}
         >
           {items.map((item) => (
-            <MediaCard
-              key={item.id}
-              item={item}
-              onClick={() => onItemClick?.(item)}
-            />
+            <div key={item.id} className="flex-shrink-0 overflow-visible">
+              <MediaCard
+                item={item}
+                onClick={() => onItemClick?.(item)}
+              />
+            </div>
           ))}
         </div>
       </div>

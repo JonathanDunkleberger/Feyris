@@ -62,7 +62,7 @@ const seedData = [
 ];
 
 async function seed() {
-  console.log('🌱 Starting Seed...');
+  console.log('[seed] Starting Seed...');
 
   for (const item of seedData) {
     console.log(`Generating vector for: ${item.title}...`);
@@ -86,7 +86,7 @@ async function seed() {
     if (error) console.error('Error inserting:', error);
   }
 
-  console.log('✅ Seeding Complete! The tank is full.');
+  console.log('[seed] Seeding Complete! The tank is full.');
 }
 
 seed();

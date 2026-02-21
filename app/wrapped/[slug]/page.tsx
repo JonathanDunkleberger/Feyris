@@ -74,7 +74,7 @@ export default async function PublicWrappedPage({ params }: Props) {
             hours consumed
           </div>
           <div className="mt-4 text-[12px] text-cream/30">
-            42 titles · Avg 8.3 ★
+            42 titles · Avg 8.3/10
           </div>
           <div className="mt-4 text-[20px] font-black text-cream">
             &ldquo;The Worldbuilder&rdquo;

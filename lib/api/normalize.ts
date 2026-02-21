@@ -1,6 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { MediaItem } from "@/stores/app-store";
 
+// ─── TMDB Genre ID → Name Map ──────────────────────────────────────────────
+const TMDB_GENRE_MAP: Record<number, string> = {
+  // Movie genres
+  28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy",
+  80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family",
+  14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music",
+  9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 10770: "TV Movie",
+  53: "Thriller", 10752: "War", 37: "Western",
+  // TV genres
+  10759: "Action & Adventure", 10762: "Kids", 10763: "News",
+  10764: "Reality", 10765: "Sci-Fi & Fantasy", 10766: "Soap",
+  10767: "Talk", 10768: "War & Politics",
+};
+
+/** Convert TMDB genre_ids array to genre name strings */
+function mapTMDBGenres(genreIds: number[] | undefined): string[] {
+  if (!genreIds) return [];
+  return genreIds.map((id) => TMDB_GENRE_MAP[id] || String(id)).filter(Boolean);
+}
+
 /** Normalize Jikan anime/manga result → MediaItem */
 export function normalizeJikan(r: any, type: "anime" | "manga" = "anime"): MediaItem {
   return {
@@ -39,7 +59,7 @@ export function normalizeTMDB(r: any): MediaItem {
     description: r.overview,
     year: parseInt((r.release_date || r.first_air_date || "").slice(0, 4)) || undefined,
     rating: r.vote_average ? Math.round(r.vote_average * 10) : undefined,
-    genres: (r.genre_ids || []).map(String),
+    genres: r.genres ? r.genres.map((g: any) => g.name) : mapTMDBGenres(r.genre_ids),
     tmdb_id: r.id,
   };
 }
@@ -60,7 +80,7 @@ export function normalizeTMDBMovie(r: any): MediaItem {
     description: r.overview,
     year: parseInt((r.release_date || "").slice(0, 4)) || undefined,
     rating: r.vote_average ? Math.round(r.vote_average * 10) : undefined,
-    genres: (r.genre_ids || []).map(String),
+    genres: r.genres ? r.genres.map((g: any) => g.name) : mapTMDBGenres(r.genre_ids),
     tmdb_id: r.id,
   };
 }
@@ -81,7 +101,7 @@ export function normalizeTMDBTV(r: any): MediaItem {
     description: r.overview,
     year: parseInt((r.first_air_date || "").slice(0, 4)) || undefined,
     rating: r.vote_average ? Math.round(r.vote_average * 10) : undefined,
-    genres: (r.genre_ids || []).map(String),
+    genres: r.genres ? r.genres.map((g: any) => g.name) : mapTMDBGenres(r.genre_ids),
     tmdb_id: r.id,
   };
 }

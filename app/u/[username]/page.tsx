@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Film } from "lucide-react";
+import { Film, Star } from "lucide-react";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -137,8 +137,8 @@ export default async function PublicProfilePage({ params }: Props) {
                   {item.type}
                 </div>
               </div>
-              <div className="text-[14px] font-bold text-gold">
-                {item.rating} ★
+              <div className="flex items-center gap-1 text-[14px] font-bold text-gold">
+                {item.rating} <Star size={13} fill="#c8a44e" />
               </div>
             </div>
           ))}

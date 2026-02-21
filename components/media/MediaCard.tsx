@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Plus, Eye, Star, Film } from "lucide-react";
 import { MEDIA_TYPES } from "@/lib/constants";
 import type { MediaItem } from "@/stores/app-store";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface MediaCardProps {
   item: MediaItem;
@@ -16,9 +17,11 @@ interface MediaCardProps {
 
 export function MediaCard({ item, onClick, enableLink = true }: MediaCardProps) {
   const [hovered, setHovered] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const config = MEDIA_TYPES[item.media_type as keyof typeof MEDIA_TYPES];
   const tc = config?.color || "#999";
   const TypeIcon = config?.icon || Film;
+  const favorited = isFavorite(item.id);
 
   const href = `/media/${item.slug}`;
 
@@ -97,16 +100,43 @@ export function MediaCard({ item, onClick, enableLink = true }: MediaCardProps) 
         <AnimatePresence>
           {hovered && (
             <motion.div
-              className="absolute right-[7px] top-[7px] flex flex-col gap-[3px]"
+              className="absolute right-[7px] top-[7px] z-20 flex flex-col gap-[3px]"
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 8 }}
               transition={{ duration: 0.2 }}
             >
-              {[Heart, Plus, Eye].map((Icon, idx) => (
+              {/* Heart / Favorite */}
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  toggleFavorite(item.id);
+                }}
+                className="flex h-[26px] w-[26px] items-center justify-center rounded-full"
+                style={{
+                  background: "rgba(10,10,15,0.65)",
+                  backdropFilter: "blur(6px)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <Heart
+                  size={12}
+                  className={favorited ? "fill-red-500 text-red-500" : "text-cream/55"}
+                />
+              </motion.button>
+              {/* Add / View */}
+              {[Plus, Eye].map((Icon, idx) => (
                 <motion.button
                   key={idx}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
                   className="flex h-[26px] w-[26px] items-center justify-center rounded-full"
                   style={{
                     background: "rgba(10,10,15,0.65)",
@@ -118,7 +148,7 @@ export function MediaCard({ item, onClick, enableLink = true }: MediaCardProps) 
                   whileTap={{ scale: 0.9 }}
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
+                  transition={{ delay: (idx + 1) * 0.05 }}
                 >
                   <Icon size={12} />
                 </motion.button>
