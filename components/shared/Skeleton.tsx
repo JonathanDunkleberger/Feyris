@@ -45,9 +45,12 @@ export function SkeletonCard({ count = 8 }: SkeletonCardProps) {
 
 export function SkeletonGrid({ count = 12 }: SkeletonCardProps) {
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(155px,1fr))] gap-2.5">
+    <div
+      className="grid gap-4"
+      style={{ gridTemplateColumns: "repeat(auto-fill, minmax(172px, 1fr))" }}
+    >
       {Array.from({ length: count }).map((_, i) => (
-        <SingleSkeleton key={i} />
+        <div key={i} className="aspect-[2/3] rounded-xl bg-white/[0.03] animate-pulse" />
       ))}
     </div>
   );

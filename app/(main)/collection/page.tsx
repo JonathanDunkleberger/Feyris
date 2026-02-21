@@ -18,6 +18,7 @@ import { useAppStore, type MediaItem } from "@/stores/app-store";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useWatched } from "@/hooks/useWatched";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { CatLogo } from "@/components/shared/CatLogo";
 import { SignInButton, useUser } from "@clerk/nextjs";
 
 const LIST_TABS = [
@@ -119,7 +120,7 @@ export default function CollectionPage() {
       <div className="mb-1 flex items-center gap-2">
         <BookMarked size={20} className="text-gold" />
         <h1 className="text-2xl font-extrabold tracking-tight text-cream">
-          My Media
+          Collection
         </h1>
         {totalItems > 0 && (
           <span className="ml-1 rounded-full bg-gold/10 px-2 py-0.5 text-[11px] font-bold text-gold">
@@ -214,7 +215,7 @@ export default function CollectionPage() {
         </div>
       ) : (
         <div className="py-20 text-center">
-          <activeTab.icon size={40} className="mx-auto mb-4 text-cream/10" />
+          <CatLogo size={64} className="mx-auto mb-4 opacity-20" />
           <h3 className="mb-1.5 text-[16px] font-bold text-cream/40">
             {activeList === "favorites"
               ? "No favorites yet"

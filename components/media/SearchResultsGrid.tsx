@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
 import { MediaCard } from "./MediaCard";
+import { CatLogo } from "@/components/shared/CatLogo";
 
 export function SearchResultsGrid() {
   const { searchQuery, setSearchQuery, setSelectedItem } = useAppStore();
@@ -62,22 +63,33 @@ export function SearchResultsGrid() {
         </button>
       </div>
 
-      {/* Loading */}
+      {/* Skeleton grid while loading */}
       {isLoading && (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 size={24} className="animate-spin text-gold" />
-          <span className="ml-2 text-[13px] text-cream/30">Searching...</span>
+        <div
+          className="grid gap-4"
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(172px, 1fr))",
+          }}
+        >
+          {Array.from({ length: 21 }).map((_, i) => (
+            <div
+              key={i}
+              className="aspect-[2/3] rounded-xl bg-white/[0.03] animate-pulse"
+            />
+          ))}
         </div>
       )}
 
-      {/* Results grid — MediaCard tiles */}
+      {/* Results grid — poster MediaCards */}
       {!isLoading && results.length > 0 && (
         <div
-          className="grid gap-4 overflow-visible"
-          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(172px, 1fr))" }}
+          className="grid gap-4 overflow-visible py-2"
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(172px, 1fr))",
+          }}
         >
           {results.map((item) => (
-            <div key={item.id} className="overflow-visible">
+            <div key={item.id} style={{ overflow: "visible" }}>
               <MediaCard
                 item={item}
                 onClick={() => setSelectedItem(item)}
@@ -90,12 +102,12 @@ export function SearchResultsGrid() {
       {/* No results */}
       {!isLoading && results.length === 0 && searchQuery.trim() && (
         <div className="py-20 text-center">
-          <Search size={40} className="mx-auto mb-4 text-cream/10" />
+          <CatLogo size={64} className="mx-auto mb-4 opacity-20" />
           <h3 className="mb-1.5 text-[16px] font-bold text-cream/40">
             No results found
           </h3>
           <p className="mx-auto max-w-[320px] text-[12px] text-cream/25">
-            Try a different search term or check the spelling.
+            No results found for &ldquo;{searchQuery}&rdquo;. Try a different search term.
           </p>
         </div>
       )}

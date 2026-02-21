@@ -68,13 +68,13 @@ export default function HomePage() {
         {isLoading ? (
           /* Skeleton loaders while data loads */
           Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="mb-6">
+            <div key={i} className="mb-8">
               <div className="mb-3 h-5 w-48 animate-pulse rounded bg-white/[0.04]" />
-              <div className="flex gap-3 overflow-hidden">
+              <div className="flex gap-4" style={{ overflow: "hidden" }}>
                 {Array.from({ length: 8 }).map((_, j) => (
                   <div
                     key={j}
-                    className="h-[248px] w-[172px] shrink-0 animate-pulse rounded-xl bg-white/[0.03]"
+                    className="aspect-[2/3] w-[172px] shrink-0 animate-pulse rounded-xl bg-white/[0.03]"
                   />
                 ))}
               </div>

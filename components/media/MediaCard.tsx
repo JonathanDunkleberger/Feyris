@@ -25,31 +25,29 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
   const watched = isWatched(item.id);
 
   return (
-    <motion.div
-      layoutId={`media-card-${item.id}`}
+    <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={onClick}
-      className="group cursor-pointer"
-      style={{
-        borderRadius: 10,
-        overflow: "hidden",
-        position: "relative",
-      }}
-      whileHover={{
-        scale: 1.07,
-        y: -6,
-        boxShadow: `0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px ${tc}40`,
-        transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
-      }}
-      initial={{
-        scale: 1,
-        y: 0,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-      }}
-      whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
+      className="group relative cursor-pointer"
+      style={{ width: "100%", overflow: "visible" }}
     >
-      <div className="relative w-full" style={{ aspectRatio: "172 / 248" }}>
+      {/* Inner image container — scale + shadow here, overflow hidden only here */}
+      <motion.div
+        className="relative aspect-[2/3] rounded-xl overflow-hidden"
+        whileHover={{
+          scale: 1.05,
+          y: -6,
+          boxShadow: `0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px ${tc}40`,
+          transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+        }}
+        initial={{
+          scale: 1,
+          y: 0,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+        }}
+        whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
+      >
         {item.cover_image_url ? (
           <Image
             src={item.cover_image_url}
@@ -97,7 +95,8 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
         <AnimatePresence>
           {hovered && (
             <motion.div
-              className="absolute right-[7px] top-[7px] z-20 flex flex-col gap-[3px]"
+              className="absolute right-[7px] top-[7px] flex flex-col gap-[3px]"
+              style={{ zIndex: 20 }}
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 8 }}
@@ -154,11 +153,11 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
           )}
         </AnimatePresence>
 
-        {/* Info */}
+        {/* Info — inside the card over gradient */}
         <div className="absolute bottom-0 left-0 right-0 px-[9px] pb-[10px] pt-[8px]">
-          <div className="mb-[3px] truncate text-[12.5px] font-bold leading-tight text-cream">
+          <h3 className="mb-[3px] text-[12.5px] font-bold leading-tight text-cream line-clamp-2">
             {item.title}
-          </div>
+          </h3>
           <div className="flex items-center gap-[5px] text-[10.5px]">
             {item.year && (
               <span className="text-cream/40">{item.year}</span>
@@ -203,7 +202,7 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
             )}
           </AnimatePresence>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

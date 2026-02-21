@@ -7,11 +7,14 @@ import {
   Sparkles,
   TrendingUp,
   Shuffle,
+  Heart,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { MediaCarousel } from "@/components/media/MediaCarousel";
 import { TasteRadar } from "@/components/recommendations/TasteRadar";
 import { useAppStore, type MediaItem } from "@/stores/app-store";
+import { useFavorites } from "@/hooks/useFavorites";
+import { CatLogo } from "@/components/shared/CatLogo";
 import type { MediaType } from "@/lib/constants";
 
 // Demo data for taste radar
@@ -35,6 +38,7 @@ interface CarouselData {
 
 export default function ForYouPage() {
   const { setSelectedItem } = useAppStore();
+  const { favorites } = useFavorites();
 
   // Fetch real carousels to power the recommendation sections
   const { data: carousels = [] } = useQuery<CarouselData[]>({
@@ -71,6 +75,30 @@ export default function ForYouPage() {
         {/* Taste radar + What's Next */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
           <div className="min-w-0">
+            {/* Empty state when no favorites */}
+            {favorites.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 rounded-xl border border-gold/[0.08] p-8 text-center"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(20,18,28,0.9), rgba(14,14,20,0.95))",
+                }}
+              >
+                <CatLogo size={64} className="mx-auto mb-3 opacity-30" />
+                <h3 className="mb-1 text-[15px] font-bold text-cream">
+                  Add Favorites to Get Started
+                </h3>
+                <p className="mb-3 text-[11px] text-cream/30">
+                  Heart titles you love to get personalized recommendations that evolve with your taste.
+                </p>
+                <div className="inline-flex items-center gap-1.5 rounded-lg border border-gold/10 bg-gold/[0.05] px-4 py-2 text-[11px] font-semibold text-gold">
+                  <Heart size={13} /> Browse the Home page to start
+                </div>
+              </motion.div>
+            )}
+
             {/* What's Next Picker */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}

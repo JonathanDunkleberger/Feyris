@@ -67,8 +67,20 @@ export function CastCarousel({ cast, title = "Cast & Crew" }: CastCarouselProps)
 
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scrollbar-hide py-1"
-          style={{ scrollSnapType: "x mandatory" }}
+          className="scrollbar-hide"
+          style={{
+            display: "flex",
+            gap: "12px",
+            overflowX: "auto",
+            overflowY: "visible",
+            scrollSnapType: "x mandatory",
+            scrollBehavior: "smooth",
+            paddingTop: "4px",
+            paddingBottom: "4px",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          } as React.CSSProperties}
         >
           {cast.map((member, idx) => (
             <motion.div

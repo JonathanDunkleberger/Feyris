@@ -68,8 +68,19 @@ export function VideoCarousel({ videos, title = "Videos" }: VideoCarouselProps) 
 
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scrollbar-hide"
-          style={{ scrollSnapType: "x mandatory" }}
+          className="scrollbar-hide"
+          style={{
+            display: "flex",
+            gap: "12px",
+            overflowX: "auto",
+            overflowY: "visible",
+            scrollSnapType: "x mandatory",
+            scrollBehavior: "smooth",
+            paddingBottom: "8px",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          } as React.CSSProperties}
         >
           {videos.map((video) => (
             <motion.div

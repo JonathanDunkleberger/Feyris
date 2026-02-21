@@ -12,14 +12,20 @@ export function TopBar() {
 
   return (
     <header
-      className="fixed top-0 right-0 z-50 flex h-14 items-center justify-between border-b border-gold/[0.04] px-6 transition-all duration-300"
+      className="f-topbar fixed top-0 right-0 z-50 flex h-14 items-center justify-between border-b border-gold/[0.04] px-6 transition-all duration-300"
       style={{
-        left: sidebarOpen ? 212 : 62,
         background:
           "linear-gradient(90deg, rgba(14,14,20,0.97), rgba(10,10,14,0.99))",
         backdropFilter: "blur(16px)",
       }}
     >
+      {/* Dynamic left offset — 0 on mobile, sidebar width on desktop */}
+      <style>{`
+        .f-topbar { left: 0 !important; }
+        @media (min-width: 768px) {
+          .f-topbar { left: ${sidebarOpen ? 212 : 62}px !important; }
+        }
+      `}</style>
       {/* Logo (visible on small screens where sidebar is hidden) */}
       <div className="flex items-center gap-2 md:hidden">
         <CatLogo size={24} />
@@ -66,7 +72,7 @@ export function TopBar() {
           >
             <UserButton.MenuItems>
               <UserButton.Link
-                label="My Media"
+                label="My Collection"
                 labelIcon={<BookMarked size={14} />}
                 href="/collection"
               />

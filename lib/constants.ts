@@ -101,13 +101,13 @@ export type ActivityAction = (typeof ACTIVITY_ACTIONS)[number];
 import {
   Home,
   BarChart3,
-  Wand2,
+  Sparkles,
 } from "lucide-react";
 
 export const NAV_ITEMS = [
   { id: "home", label: "Home", icon: Home, href: "/" },
-  { id: "collection", label: "My Media", icon: BookMarked, href: "/collection" },
-  { id: "for-you", label: "For You", icon: Wand2, href: "/for-you" },
+  { id: "collection", label: "Collection", icon: BookMarked, href: "/collection" },
+  { id: "for-you", label: "For You", icon: Sparkles, href: "/for-you" },
   { id: "wrapped", label: "Wrapped", icon: BarChart3, href: "/wrapped" },
 ] as const;
 

@@ -488,7 +488,20 @@ export function MediaDetailPanel() {
               <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 Videos
               </h3>
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              <div
+                className="scrollbar-hide"
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  overflowX: "auto",
+                  overflowY: "visible",
+                  scrollBehavior: "smooth",
+                  paddingBottom: "8px",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  WebkitOverflowScrolling: "touch",
+                } as React.CSSProperties}
+              >
                 {item.videos.slice(0, 6).map((v) => (
                   <a
                     key={v.id}
@@ -525,28 +538,62 @@ export function MediaDetailPanel() {
               <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 You Might Also Like
               </h3>
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                {item.related.slice(0, 10).map((rel) => (
-                  <button
+              <div
+                className="scrollbar-hide"
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  overflowX: "auto",
+                  overflowY: "visible",
+                  scrollSnapType: "x mandatory",
+                  scrollBehavior: "smooth",
+                  paddingTop: "4px",
+                  paddingBottom: "12px",
+                  paddingLeft: "2px",
+                  paddingRight: "2px",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  WebkitOverflowScrolling: "touch",
+                } as React.CSSProperties}
+              >
+                {item.related.slice(0, 15).map((rel) => (
+                  <div
                     key={rel.id}
-                    onClick={() => setSelectedItem(rel)}
-                    className="flex-shrink-0 overflow-hidden rounded-lg transition-transform hover:scale-105"
-                    style={{ width: 100, height: 150 }}
+                    style={{
+                      flexShrink: 0,
+                      scrollSnapAlign: "start",
+                      width: "120px",
+                      overflow: "visible",
+                    }}
                   >
-                    {rel.cover_image_url ? (
-                      <Image
-                        src={rel.cover_image_url}
-                        alt={rel.title}
-                        width={100}
-                        height={150}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-fey-surface text-[10px] text-[#f0ebe0]/20">
-                        {rel.title}
+                    <button
+                      onClick={() => setSelectedItem(rel)}
+                      className="group/rel relative w-full cursor-pointer"
+                      style={{ overflow: "visible" }}
+                    >
+                      <div className="relative aspect-[2/3] rounded-lg overflow-hidden transition-all duration-300 ease-out group-hover/rel:scale-105 group-hover/rel:-translate-y-1 group-hover/rel:shadow-lg">
+                        {rel.cover_image_url ? (
+                          <Image
+                            src={rel.cover_image_url}
+                            alt={rel.title}
+                            fill
+                            className="object-cover"
+                            sizes="120px"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-fey-surface text-[10px] text-[#f0ebe0]/20">
+                            {rel.title}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-2">
+                          <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-white">
+                            {rel.title}
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </button>
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

@@ -90,6 +90,7 @@ const config: Config = {
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease",
+        fadeIn: "fadeIn 0.3s ease",
         "slide-up":
           "slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
         "scale-in": "scaleIn 0.2s ease",
