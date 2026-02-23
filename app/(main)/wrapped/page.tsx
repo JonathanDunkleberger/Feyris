@@ -101,7 +101,7 @@ export default function WrappedPage() {
   const data = DEMO_DATA[period];
 
   const handleShare = useCallback(() => {
-    // TODO: generate share image & copy link
+    // Copies current URL — will generate OG share image in a future release
     navigator.clipboard?.writeText(window.location.href);
   }, []);
 

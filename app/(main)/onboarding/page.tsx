@@ -83,7 +83,7 @@ export default function OnboardingPage() {
   }, [step, selectedTypes]);
 
   const handleFinish = useCallback(() => {
-    // TODO: persist preferences to DB
+    // Preferences will persist to user profile once onboarding API is wired up
     router.push("/");
   }, [router]);
 

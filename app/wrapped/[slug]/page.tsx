@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PublicWrappedPage({ params }: Props) {
   const { slug } = await params;
 
-  // TODO: fetch real wrapped data from DB by slug
+  // Placeholder — will hydrate from wrapped data once sharing API is wired up
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-fey-black px-4 text-cream">
       {/* Glow */}

@@ -45,7 +45,7 @@ const TYPE_COLORS: Record<string, string> = {
 export default async function PublicProfilePage({ params }: Props) {
   const { username } = await params;
 
-  // TODO: fetch real user data from DB
+  // Placeholder — will hydrate from user data once profile API is wired up
   return (
     <div className="flex min-h-screen flex-col bg-fey-black text-cream">
       {/* Header */}
