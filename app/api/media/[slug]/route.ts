@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getTMDBDetails } from "@/lib/api/tmdb";
 import { getAnimeDetails } from "@/lib/api/jikan";
 import { getGameDetails } from "@/lib/api/igdb";
-import { getBookDetails } from "@/lib/api/books";
+import { getBookDetails, bookCoverUrl } from "@/lib/api/books";
 
 export async function GET(
   request: NextRequest,
@@ -46,6 +46,24 @@ export async function GET(
       
       const data: any = await getAnimeDetails(id);
       if (data) {
+        // Build related anime list from recommendations/relations
+        const relatedAnime: any[] = [];
+        if (data.relations) {
+          for (const rel of data.relations) {
+            for (const entry of rel.entry || []) {
+              if (entry.type === "anime") {
+                relatedAnime.push({
+                  id: `mal-${entry.mal_id}`,
+                  media_type: "anime",
+                  title: entry.name,
+                  slug: `mal-${entry.mal_id}`,
+                  genres: [],
+                });
+              }
+            }
+          }
+        }
+
         media = {
           id: `mal-${data.mal_id}`,
           media_type: "anime",
@@ -75,10 +93,30 @@ export async function GET(
                 type: "Trailer",
               }]
             : [],
-          tags: (data.themes || []).map((t: any) => t.name),
+          tags: [
+            ...(data.themes || []).map((t: any) => t.name),
+            ...(data.demographics || []).map((d: any) => d.name),
+          ],
           seasons: data.episodes
             ? [{ number: 1, episode_count: data.episodes, name: "Season 1", air_date: data.aired?.from }]
             : [],
+          related: relatedAnime.length > 0 ? relatedAnime : undefined,
+          metadata: {
+            type_text: data.type,
+            source: data.source,
+            duration: data.duration,
+            aired_from: data.aired?.from,
+            aired_to: data.aired?.to,
+            season: data.season,
+            broadcast: data.broadcast?.string,
+            producers: (data.producers || []).map((p: any) => p.name),
+            licensors: (data.licensors || []).map((l: any) => l.name),
+            mal_rank: data.rank,
+            mal_popularity: data.popularity,
+            mal_members: data.members,
+            mal_scored_by: data.scored_by,
+            content_rating: data.rating,
+          },
         };
       }
     } else if (source === "igdb") {
@@ -120,25 +158,67 @@ export async function GET(
             provider: p.name || "Platform",
             type: "buy" as const,
           })),
+          tags: (data.themes || []).map((t: any) => t.name),
+          related: (data.similar_games || []).slice(0, 15).map((g: any) => ({
+            id: `igdb-${g.id}`,
+            media_type: "game",
+            title: g.name,
+            slug: `igdb-${g.id}`,
+            cover_image_url: g.cover?.url
+              ? `https:${g.cover.url.replace("t_thumb", "t_cover_big")}`
+              : undefined,
+            genres: [],
+          })),
+          metadata: {
+            game_modes: (data.game_modes || []).map((m: any) => m.name),
+            developer: (data.involved_companies || [])
+              .filter((c: any) => c.developer)
+              .map((c: any) => c.company?.name)
+              .join(", "),
+            publisher: (data.involved_companies || [])
+              .filter((c: any) => c.publisher)
+              .map((c: any) => c.company?.name)
+              .join(", "),
+            igdb_rating: data.rating ? Math.round(data.rating) : undefined,
+            aggregated_rating: data.aggregated_rating ? Math.round(data.aggregated_rating) : undefined,
+            storyline: data.storyline,
+          },
         };
       }
-    } else if (source === "book") {
+    } else if (source === "book" || source === "gbook") {
       const data: any = await getBookDetails(sourceId);
       if (data) {
         const vol = data.volumeInfo || {};
         media = {
-          id: `book-${sourceId}`,
+          id: `gbook-${sourceId}`,
           media_type: "book",
           title: vol.title || "",
-          slug: `book-${sourceId}`,
+          slug: `gbook-${sourceId}`,
           description: vol.description,
-          cover_image_url: vol.imageLinks?.thumbnail?.replace("http:", "https:"),
+          cover_image_url: bookCoverUrl(vol),
           year: vol.publishedDate ? parseInt(vol.publishedDate) : undefined,
           rating: vol.averageRating ? vol.averageRating * 20 : undefined,
           genres: vol.categories || [],
           author: (vol.authors || []).join(", "),
           isbn: sourceId,
           runtime: vol.pageCount,
+          status_text: vol.printType || undefined,
+          tags: [
+            vol.language ? `Language: ${vol.language.toUpperCase()}` : null,
+            vol.maturityRating === "MATURE" ? "Mature" : null,
+            ...(vol.categories || []),
+          ].filter(Boolean),
+          metadata: {
+            publisher: vol.publisher,
+            publishedDate: vol.publishedDate,
+            pageCount: vol.pageCount,
+            printType: vol.printType,
+            ratingsCount: vol.ratingsCount,
+            language: vol.language,
+            previewLink: vol.previewLink,
+            infoLink: vol.infoLink,
+            subtitle: vol.subtitle,
+          },
         };
       }
     }
@@ -158,6 +238,13 @@ export async function GET(
 }
 
 function mapTMDB(data: any, type: "film" | "tv") {
+  // Extract content rating/certification
+  const certifications = data.release_dates?.results || data.content_ratings?.results || [];
+  const usCert = certifications.find((c: any) => c.iso_3166_1 === "US");
+  const contentRating = type === "film"
+    ? usCert?.release_dates?.[0]?.certification
+    : usCert?.rating;
+
   return {
     id: `tmdb-${data.id}`,
     media_type: type,
@@ -212,5 +299,28 @@ function mapTMDB(data: any, type: "film" | "tv") {
       type: "stream" as const,
     })),
     tags: (data.keywords?.keywords || data.keywords?.results || []).map((k: any) => k.name),
+    related: (data.similar?.results || []).slice(0, 15).map((r: any) => ({
+      id: `tmdb-${r.id}`,
+      media_type: type,
+      title: r.title || r.name || "",
+      slug: `tmdb-${r.id}`,
+      cover_image_url: r.poster_path
+        ? `https://image.tmdb.org/t/p/w300${r.poster_path}`
+        : undefined,
+      year: parseInt((r.release_date || r.first_air_date || "").slice(0, 4)) || undefined,
+      rating: r.vote_average ? Math.round(r.vote_average * 10) : undefined,
+      genres: [],
+    })),
+    metadata: {
+      content_rating: contentRating || undefined,
+      production_companies: (data.production_companies || []).map((c: any) => c.name),
+      budget: type === "film" && data.budget > 0 ? data.budget : undefined,
+      revenue: type === "film" && data.revenue > 0 ? data.revenue : undefined,
+      episode_runtime: type === "tv" ? data.episode_run_time?.[0] : undefined,
+      networks: type === "tv" ? (data.networks || []).map((n: any) => n.name) : undefined,
+      spoken_languages: (data.spoken_languages || []).map((l: any) => l.english_name),
+      tagline: data.tagline || undefined,
+      vote_count: data.vote_count || undefined,
+    },
   };
 }

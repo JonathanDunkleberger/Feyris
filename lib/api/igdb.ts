@@ -56,12 +56,13 @@ export async function getGameDetails(igdbId: number) {
     "/games",
     `where id = ${igdbId};
      fields name,cover.url,first_release_date,genres.name,
-            platforms.name,rating,summary,storyline,
+            platforms.name,rating,total_rating,aggregated_rating,
+            summary,storyline,
             videos.*,screenshots.url,artworks.url,
             involved_companies.company.name,involved_companies.developer,
             involved_companies.publisher,
             game_modes.name,themes.name,
-            similar_games.name,similar_games.cover.url;
+            similar_games.name,similar_games.cover.url,similar_games.id;
      limit 1;`
   );
   return results[0] || null;

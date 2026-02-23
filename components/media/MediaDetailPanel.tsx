@@ -149,7 +149,7 @@ export function MediaDetailPanel() {
   });
 
   // Merge enriched data with selected item (enriched takes priority for extended fields)
-  const display = {
+  const display: MediaItem = {
     ...item,
     ...enrichedItem,
     // Keep the original id and media_type
@@ -166,14 +166,23 @@ export function MediaDetailPanel() {
 
   const metaLine = (() => {
     const parts: string[] = [];
+    // Content rating (PG-13, R, etc.)
+    const contentRating = display.metadata?.content_rating as string | undefined;
+    if (contentRating) parts.push(contentRating);
     if (display.author) parts.push(display.author);
     if (display.runtime) {
-      if (display.media_type === "film") parts.push(`${display.runtime} min`);
-      else if (display.media_type === "anime" || display.media_type === "tv")
+      if (display.media_type === "film") {
+        const h = Math.floor(display.runtime / 60);
+        const m = display.runtime % 60;
+        parts.push(h > 0 ? `${h}h ${m}min` : `${display.runtime}min`);
+      } else if (display.media_type === "anime" || display.media_type === "tv")
         parts.push(`${display.runtime} episodes`);
       else if (display.media_type === "book") parts.push(`${display.runtime} pages`);
     }
     if (display.status_text) parts.push(display.status_text);
+    // Networks for TV
+    const networks = display.metadata?.networks as string[] | undefined;
+    if (networks && networks.length > 0) parts.push(networks[0]);
     return parts;
   })();
 
@@ -401,7 +410,14 @@ export function MediaDetailPanel() {
             </div>
           )}
 
-          {/* 4. DESCRIPTION */}
+          {/* 4. TAGLINE */}
+          {typeof display.metadata?.tagline === "string" && display.metadata.tagline && (
+            <p className="mb-3 text-[13px] italic text-[#f0ebe0]/35">
+              &ldquo;{display.metadata.tagline}&rdquo;
+            </p>
+          )}
+
+          {/* 5. DESCRIPTION */}
           {display.description && (
             <div className="mb-4">
               <p className="text-[13px] leading-[1.75] text-[#f0ebe0]/55">
@@ -514,7 +530,101 @@ export function MediaDetailPanel() {
             </AnimatePresence>
           </div>
 
-          {/* 7. CAST */}
+          {/* 7. TAGS / THEMES */}
+          {display.tags && display.tags.length > 0 && (
+            <div className="mb-5">
+              <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
+                Themes & Tags
+              </h3>
+              <div className="flex flex-wrap gap-[5px]">
+                {display.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full px-[10px] py-[3px] text-[10.5px] font-medium text-[#f0ebe0]/45 border border-white/[0.06] bg-white/[0.02]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 7b. ADDITIONAL DETAILS (metadata grid) */}
+          {(() => {
+            if (!display.metadata) return null;
+            const meta = display.metadata as Record<string, unknown>;
+            const details: { label: string; value: string }[] = [];
+
+            // Film-specific
+            if (meta.production_companies && (meta.production_companies as string[]).length > 0)
+              details.push({ label: "Production", value: (meta.production_companies as string[]).slice(0, 3).join(", ") });
+            if (meta.budget && typeof meta.budget === "number")
+              details.push({ label: "Budget", value: `$${(meta.budget / 1_000_000).toFixed(0)}M` });
+            if (meta.revenue && typeof meta.revenue === "number")
+              details.push({ label: "Box Office", value: `$${(meta.revenue / 1_000_000).toFixed(0)}M` });
+            if (meta.spoken_languages && (meta.spoken_languages as string[]).length > 0)
+              details.push({ label: "Languages", value: (meta.spoken_languages as string[]).slice(0, 3).join(", ") });
+
+            // Anime-specific
+            if (meta.source && typeof meta.source === "string")
+              details.push({ label: "Source", value: meta.source });
+            if (meta.duration && typeof meta.duration === "string")
+              details.push({ label: "Episode Duration", value: meta.duration });
+            if (meta.season && typeof meta.season === "string")
+              details.push({ label: "Premiered", value: `${meta.season.charAt(0).toUpperCase() + meta.season.slice(1)}${meta.aired_from ? ` ${new Date(meta.aired_from as string).getFullYear()}` : ""}` });
+            if (meta.producers && (meta.producers as string[]).length > 0)
+              details.push({ label: "Producers", value: (meta.producers as string[]).slice(0, 3).join(", ") });
+            if (meta.mal_rank && typeof meta.mal_rank === "number")
+              details.push({ label: "MAL Rank", value: `#${meta.mal_rank}` });
+            if (meta.mal_popularity && typeof meta.mal_popularity === "number")
+              details.push({ label: "MAL Popularity", value: `#${meta.mal_popularity}` });
+
+            // Game-specific
+            if (meta.developer && typeof meta.developer === "string" && meta.developer)
+              details.push({ label: "Developer", value: meta.developer });
+            if (meta.publisher && typeof meta.publisher === "string" && meta.publisher)
+              details.push({ label: "Publisher", value: meta.publisher });
+            if (meta.game_modes && (meta.game_modes as string[]).length > 0)
+              details.push({ label: "Game Modes", value: (meta.game_modes as string[]).join(", ") });
+            if (meta.aggregated_rating && typeof meta.aggregated_rating === "number")
+              details.push({ label: "Critic Score", value: `${meta.aggregated_rating}/100` });
+
+            // Book-specific
+            if (display.media_type === "book" && meta.publisher && typeof meta.publisher === "string")
+              details.push({ label: "Publisher", value: meta.publisher });
+            if (display.media_type === "book" && meta.publishedDate && typeof meta.publishedDate === "string")
+              details.push({ label: "Published", value: meta.publishedDate });
+            if (display.isbn)
+              details.push({ label: "ISBN", value: display.isbn });
+
+            // TV-specific
+            if (meta.episode_runtime && typeof meta.episode_runtime === "number")
+              details.push({ label: "Episode Runtime", value: `${meta.episode_runtime}min` });
+
+            if (details.length === 0) return null;
+
+            return (
+              <div className="mb-5">
+                <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
+                  Details
+                </h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                  {details.map((d) => (
+                    <div key={d.label} className="flex flex-col">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-[#f0ebe0]/25">
+                        {d.label}
+                      </span>
+                      <span className="text-[12px] text-[#f0ebe0]/60">
+                        {d.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* 8. CAST */}
           {display.cast && display.cast.length > 0 && display.media_type !== "book" && (
             <div className="mb-5">
               <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
@@ -630,7 +740,14 @@ export function MediaDetailPanel() {
           )}
 
           {/* 11. YOU MIGHT ALSO LIKE */}
-          {display.related && display.related.length > 0 && (
+          {display.related && display.related.length > 0 && (() => {
+            // Filter out items user has already consumed
+            const consumedSet = new Set([...favorites, ...watched, ...watchlist]);
+            const filteredRelated = display.related!.filter(
+              (rel) => !consumedSet.has(rel.id)
+            );
+            if (filteredRelated.length === 0) return null;
+            return (
             <div className="mb-5">
               <h3 className="mb-2 text-[12px] font-bold uppercase tracking-wider text-[#f0ebe0]/30">
                 You Might Also Like
@@ -653,7 +770,7 @@ export function MediaDetailPanel() {
                   WebkitOverflowScrolling: "touch",
                 } as React.CSSProperties}
               >
-                {display.related!.slice(0, 15).map((rel) => (
+                {filteredRelated.slice(0, 15).map((rel) => (
                   <div
                     key={rel.id}
                     style={{
@@ -694,9 +811,8 @@ export function MediaDetailPanel() {
                 ))}
               </div>
             </div>
-          )}
-
-          {/* 10. REVIEWS */}
+            );
+          })()}
           <div className="border-t border-white/[0.04] mt-6 pt-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-[#f0ebe0]/80">

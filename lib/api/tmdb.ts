@@ -26,9 +26,12 @@ export async function getTMDBDetails(
   id: number,
   type: "movie" | "tv"
 ) {
+  const appendFields = type === "movie"
+    ? "videos,credits,similar,watch/providers,keywords,release_dates"
+    : "videos,credits,similar,watch/providers,keywords,content_ratings";
   const res = await fetch(
     tmdbUrl(`/${type}/${id}`, {
-      append_to_response: "videos,credits,similar,watch/providers",
+      append_to_response: appendFields,
     }),
     { next: { revalidate: 86400 } }
   );
