@@ -2,11 +2,19 @@ node_modules/
 .next/
 .env
 .env.local
-# extras
+
+# Build artifacts
 dist/
 out/
 coverage/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Logs
 *.log
 npm-debug.log*
 yarn-error.log*
+
+# OS
 .DS_Store
+Thumbs.db
