@@ -1,0 +1,344 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1320" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d0d14"/>
+      <stop offset="100%" stop-color="#0a0a10"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4a843"/>
+      <stop offset="100%" stop-color="#c49030"/>
+    </linearGradient>
+    <linearGradient id="cardBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16161f"/>
+      <stop offset="100%" stop-color="#121219"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="1320" fill="url(#bg)"/>
+
+  <!-- Header -->
+  <text x="480" y="62" text-anchor="middle" fill="#d4a843" font-size="38" font-weight="300" letter-spacing="16">FEYRIS</text>
+  <text x="480" y="88" text-anchor="middle" fill="#7a7572" font-size="11" letter-spacing="6" font-weight="400">SYSTEM ARCHITECTURE</text>
+  <text x="480" y="106" text-anchor="middle" fill="#5a5552" font-size="9" letter-spacing="2">feyrisrec.com</text>
+
+  <!-- ═══════════════════════════════════ EXPERIENCE LAYER ═══════════════════════════════════ -->
+  <text x="40" y="148" fill="#7a7572" font-size="10" letter-spacing="4" font-weight="600">EXPERIENCE</text>
+  <line x1="40" y1="155" x2="920" y2="155" stroke="#2a2530" stroke-width="0.5"/>
+
+  <!-- Card: Media Discovery -->
+  <rect x="40" y="168" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="62" cy="190" r="14" fill="#d4a843" opacity="0.15"/>
+  <text x="62" y="195" text-anchor="middle" fill="#d4a843" font-size="11" font-weight="700">M</text>
+  <text x="84" y="187" fill="#e8e0d0" font-size="13" font-weight="600">Media Discovery</text>
+  <text x="84" y="201" fill="#6a6562" font-size="9">Unified cross-media search</text>
+  <text x="56" y="224" fill="#8a8580" font-size="9">•</text><text x="64" y="224" fill="#9a9590" font-size="9">Film + TV + Anime + Games + Books</text>
+  <text x="56" y="242" fill="#8a8580" font-size="9">•</text><text x="64" y="242" fill="#9a9590" font-size="9">~45 max results per query</text>
+  <text x="56" y="260" fill="#8a8580" font-size="9">•</text><text x="64" y="260" fill="#9a9590" font-size="9">Real-time search debounce</text>
+
+  <!-- Card: Trending Rails -->
+  <rect x="270" y="168" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="292" cy="190" r="14" fill="#e06850" opacity="0.15"/>
+  <text x="292" y="195" text-anchor="middle" fill="#e06850" font-size="11" font-weight="700">T</text>
+  <text x="314" y="187" fill="#e8e0d0" font-size="13" font-weight="600">Trending Rails</text>
+  <text x="314" y="201" fill="#6a6562" font-size="9">Category-based discovery</text>
+  <rect x="422" y="177" width="48" height="18" rx="9" fill="#e06850" opacity="0.12"/>
+  <text x="446" y="189" text-anchor="middle" fill="#e06850" font-size="8" font-weight="600">5 CATS</text>
+  <text x="286" y="224" fill="#8a8580" font-size="9">•</text><text x="294" y="224" fill="#9a9590" font-size="9">Trending Movies / TV / Anime</text>
+  <text x="286" y="242" fill="#8a8580" font-size="9">•</text><text x="294" y="242" fill="#9a9590" font-size="9">Popular Games + Books</text>
+  <text x="286" y="260" fill="#8a8580" font-size="9">•</text><text x="294" y="260" fill="#9a9590" font-size="9">Horizontal scroll carousels</text>
+
+  <!-- Card: Collections -->
+  <rect x="500" y="168" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="522" cy="190" r="14" fill="#50b080" opacity="0.15"/>
+  <text x="522" y="195" text-anchor="middle" fill="#50b080" font-size="11" font-weight="700">C</text>
+  <text x="544" y="187" fill="#e8e0d0" font-size="13" font-weight="600">Collections</text>
+  <text x="544" y="201" fill="#6a6562" font-size="9">Favorites &amp; tracking</text>
+  <text x="516" y="224" fill="#8a8580" font-size="9">•</text><text x="524" y="224" fill="#9a9590" font-size="9">Add favorites across media</text>
+  <text x="516" y="242" fill="#8a8580" font-size="9">•</text><text x="524" y="242" fill="#9a9590" font-size="9">No sign-in required (MVP)</text>
+  <text x="516" y="260" fill="#8a8580" font-size="9">•</text><text x="524" y="260" fill="#9a9590" font-size="9">"My Media" taste snapshot</text>
+
+  <!-- Card: Recommendations -->
+  <rect x="730" y="168" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="752" cy="190" r="14" fill="#7c6ce0" opacity="0.15"/>
+  <text x="752" y="195" text-anchor="middle" fill="#7c6ce0" font-size="11" font-weight="700">R</text>
+  <text x="774" y="187" fill="#e8e0d0" font-size="13" font-weight="600">Recommendations</text>
+  <text x="774" y="201" fill="#6a6562" font-size="9">Personalized picks</text>
+  <rect x="892" y="177" width="36" height="18" rx="9" fill="#7c6ce0" opacity="0.12"/>
+  <text x="910" y="189" text-anchor="middle" fill="#7c6ce0" font-size="8" font-weight="600">5+</text>
+  <text x="746" y="224" fill="#8a8580" font-size="9">•</text><text x="754" y="224" fill="#9a9590" font-size="9">Unlocks at 5+ favorites</text>
+  <text x="746" y="242" fill="#8a8580" font-size="9">•</text><text x="754" y="242" fill="#9a9590" font-size="9">Genre similarity scoring</text>
+  <text x="746" y="260" fill="#8a8580" font-size="9">•</text><text x="754" y="260" fill="#9a9590" font-size="9">Cross-category diversity</text>
+
+  <!-- Connector: Next.js App -->
+  <line x1="480" y1="288" x2="480" y2="312" stroke="#2a2530" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="408" y="298" width="144" height="22" rx="4" fill="#1a1a24" stroke="#2a2530" stroke-width="1"/>
+  <text x="480" y="313" text-anchor="middle" fill="#6a6562" font-size="8" letter-spacing="2" font-weight="600">NEXT.JS APP</text>
+
+  <!-- ═══════════════════════════════════ FRONTEND LAYER ═══════════════════════════════════ -->
+  <text x="40" y="354" fill="#7a7572" font-size="10" letter-spacing="4" font-weight="600">FRONTEND</text>
+  <line x1="40" y1="361" x2="920" y2="361" stroke="#2a2530" stroke-width="0.5"/>
+
+  <!-- Card: Next.js 14 -->
+  <rect x="40" y="374" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="62" cy="396" r="14" fill="#d4a843" opacity="0.15"/>
+  <text x="62" y="401" text-anchor="middle" fill="#d4a843" font-size="11" font-weight="700">N</text>
+  <text x="84" y="393" fill="#e8e0d0" font-size="13" font-weight="600">Next.js 14</text>
+  <text x="84" y="407" fill="#6a6562" font-size="9">App Router + TypeScript</text>
+  <rect x="182" y="383" width="56" height="18" rx="9" fill="#d4a843" opacity="0.12"/>
+  <text x="210" y="395" text-anchor="middle" fill="#d4a843" font-size="8" font-weight="600">VERCEL</text>
+  <text x="56" y="430" fill="#8a8580" font-size="9">•</text><text x="64" y="430" fill="#9a9590" font-size="9">Tailwind CSS styling</text>
+  <text x="56" y="448" fill="#8a8580" font-size="9">•</text><text x="64" y="448" fill="#9a9590" font-size="9">shadcn/ui components</text>
+  <text x="56" y="466" fill="#8a8580" font-size="9">•</text><text x="64" y="466" fill="#9a9590" font-size="9">Image optimization + SSR</text>
+
+  <!-- Card: React Components -->
+  <rect x="270" y="374" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="292" cy="396" r="14" fill="#e06850" opacity="0.15"/>
+  <text x="292" y="401" text-anchor="middle" fill="#e06850" font-size="11" font-weight="700">R</text>
+  <text x="314" y="393" fill="#e8e0d0" font-size="13" font-weight="600">React 18</text>
+  <text x="314" y="407" fill="#6a6562" font-size="9">UI component library</text>
+  <text x="286" y="430" fill="#8a8580" font-size="9">•</text><text x="294" y="430" fill="#9a9590" font-size="9">MediaCard + carousel rails</text>
+  <text x="286" y="448" fill="#8a8580" font-size="9">•</text><text x="294" y="448" fill="#9a9590" font-size="9">Search bar + filters</text>
+  <text x="286" y="466" fill="#8a8580" font-size="9">•</text><text x="294" y="466" fill="#9a9590" font-size="9">Sidebar navigation</text>
+
+  <!-- Card: State Management -->
+  <rect x="500" y="374" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="522" cy="396" r="14" fill="#50b080" opacity="0.15"/>
+  <text x="522" y="401" text-anchor="middle" fill="#50b080" font-size="11" font-weight="700">S</text>
+  <text x="544" y="393" fill="#e8e0d0" font-size="13" font-weight="600">State Management</text>
+  <text x="544" y="407" fill="#6a6562" font-size="9">Zustand + localStorage</text>
+  <text x="516" y="430" fill="#8a8580" font-size="9">•</text><text x="524" y="430" fill="#9a9590" font-size="9">Zustand stores</text>
+  <text x="516" y="448" fill="#8a8580" font-size="9">•</text><text x="524" y="448" fill="#9a9590" font-size="9">localStorage pub/sub</text>
+  <text x="516" y="466" fill="#8a8580" font-size="9">•</text><text x="524" y="466" fill="#9a9590" font-size="9">Client-side favorites sync</text>
+
+  <!-- Card: Pages -->
+  <rect x="730" y="374" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="752" cy="396" r="14" fill="#7c6ce0" opacity="0.15"/>
+  <text x="752" y="401" text-anchor="middle" fill="#7c6ce0" font-size="11" font-weight="700">P</text>
+  <text x="774" y="393" fill="#e8e0d0" font-size="13" font-weight="600">Pages</text>
+  <text x="774" y="407" fill="#6a6562" font-size="9">App Router</text>
+  <rect x="880" y="383" width="52" height="18" rx="9" fill="#7c6ce0" opacity="0.12"/>
+  <text x="906" y="395" text-anchor="middle" fill="#7c6ce0" font-size="8" font-weight="600">4 VIEWS</text>
+  <text x="746" y="430" fill="#8a8580" font-size="9">•</text><text x="754" y="430" fill="#9a9590" font-size="9">Home + Trending</text>
+  <text x="746" y="448" fill="#8a8580" font-size="9">•</text><text x="754" y="448" fill="#9a9590" font-size="9">Collection + For You</text>
+  <text x="746" y="466" fill="#8a8580" font-size="9">•</text><text x="754" y="466" fill="#9a9590" font-size="9">Wrapped + My Media</text>
+
+  <!-- Connectors from frontend -->
+  <line x1="145" y1="494" x2="145" y2="520" stroke="#2a2530" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="74" y="504" width="142" height="22" rx="4" fill="#1a1a24" stroke="#2a2530" stroke-width="1"/>
+  <text x="145" y="519" text-anchor="middle" fill="#6a6562" font-size="8" letter-spacing="2" font-weight="600">API ROUTES</text>
+
+  <line x1="480" y1="494" x2="480" y2="520" stroke="#2a2530" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="408" y="504" width="144" height="22" rx="4" fill="#1a1a24" stroke="#2a2530" stroke-width="1"/>
+  <text x="480" y="519" text-anchor="middle" fill="#6a6562" font-size="8" letter-spacing="2" font-weight="600">CLIENT STATE</text>
+
+  <line x1="835" y1="494" x2="835" y2="520" stroke="#2a2530" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="763" y="504" width="144" height="22" rx="4" fill="#1a1a24" stroke="#2a2530" stroke-width="1"/>
+  <text x="835" y="519" text-anchor="middle" fill="#6a6562" font-size="8" letter-spacing="2" font-weight="600">APP ROUTER</text>
+
+  <!-- ═══════════════════════════════════ BACKEND LAYER ═══════════════════════════════════ -->
+  <text x="40" y="560" fill="#7a7572" font-size="10" letter-spacing="4" font-weight="600">BACKEND</text>
+  <line x1="40" y1="567" x2="920" y2="567" stroke="#2a2530" stroke-width="0.5"/>
+
+  <!-- Card: Route Handlers -->
+  <rect x="40" y="580" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="62" cy="602" r="14" fill="#d4a843" opacity="0.15"/>
+  <text x="62" y="607" text-anchor="middle" fill="#d4a843" font-size="11" font-weight="700">H</text>
+  <text x="84" y="599" fill="#e8e0d0" font-size="13" font-weight="600">Route Handlers</text>
+  <text x="84" y="613" fill="#6a6562" font-size="9">Next.js API layer</text>
+  <rect x="192" y="589" width="46" height="18" rx="9" fill="#d4a843" opacity="0.12"/>
+  <text x="215" y="601" text-anchor="middle" fill="#d4a843" font-size="8" font-weight="600">REST</text>
+  <text x="56" y="636" fill="#8a8580" font-size="9">•</text><text x="64" y="636" fill="#9a9590" font-size="9">/api/search → unified query</text>
+  <text x="56" y="654" fill="#8a8580" font-size="9">•</text><text x="64" y="654" fill="#9a9590" font-size="9">/api/popular → trending data</text>
+  <text x="56" y="672" fill="#8a8580" font-size="9">•</text><text x="64" y="672" fill="#9a9590" font-size="9">/api/details → media info</text>
+
+  <!-- Card: Recommender Engine -->
+  <rect x="270" y="580" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="292" cy="602" r="14" fill="#e06850" opacity="0.15"/>
+  <text x="292" y="607" text-anchor="middle" fill="#e06850" font-size="11" font-weight="700">E</text>
+  <text x="314" y="599" fill="#e8e0d0" font-size="13" font-weight="600">Recommender</text>
+  <text x="314" y="613" fill="#6a6562" font-size="9">Similarity scoring engine</text>
+  <rect x="413" y="589" width="52" height="18" rx="9" fill="#e06850" opacity="0.12"/>
+  <text x="439" y="601" text-anchor="middle" fill="#e06850" font-size="8" font-weight="600">SCORE</text>
+  <text x="286" y="636" fill="#8a8580" font-size="9">•</text><text x="294" y="636" fill="#9a9590" font-size="9">Genre similarity matching</text>
+  <text x="286" y="654" fill="#8a8580" font-size="9">•</text><text x="294" y="654" fill="#9a9590" font-size="9">Year proximity weighting</text>
+  <text x="286" y="672" fill="#8a8580" font-size="9">•</text><text x="294" y="672" fill="#9a9590" font-size="9">Diversity + popularity penalty</text>
+
+  <!-- Card: Adapters -->
+  <rect x="500" y="580" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="522" cy="602" r="14" fill="#50b080" opacity="0.15"/>
+  <text x="522" y="607" text-anchor="middle" fill="#50b080" font-size="11" font-weight="700">A</text>
+  <text x="544" y="599" fill="#e8e0d0" font-size="13" font-weight="600">Adapters</text>
+  <text x="544" y="613" fill="#6a6562" font-size="9">Server-side data fetching</text>
+  <rect x="632" y="589" width="64" height="18" rx="9" fill="#50b080" opacity="0.12"/>
+  <text x="664" y="601" text-anchor="middle" fill="#50b080" font-size="8" font-weight="600">3 SOURCES</text>
+  <text x="516" y="636" fill="#8a8580" font-size="9">•</text><text x="524" y="636" fill="#9a9590" font-size="9">TMDB adapter (film/TV/anime)</text>
+  <text x="516" y="654" fill="#8a8580" font-size="9">•</text><text x="524" y="654" fill="#9a9590" font-size="9">IGDB adapter (games)</text>
+  <text x="516" y="672" fill="#8a8580" font-size="9">•</text><text x="524" y="672" fill="#9a9590" font-size="9">Google Books adapter</text>
+
+  <!-- Card: Middleware -->
+  <rect x="730" y="580" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="752" cy="602" r="14" fill="#7c6ce0" opacity="0.15"/>
+  <text x="752" y="607" text-anchor="middle" fill="#7c6ce0" font-size="11" font-weight="700">W</text>
+  <text x="774" y="599" fill="#e8e0d0" font-size="13" font-weight="600">Middleware</text>
+  <text x="774" y="613" fill="#6a6562" font-size="9">Request processing</text>
+  <text x="746" y="636" fill="#8a8580" font-size="9">•</text><text x="754" y="636" fill="#9a9590" font-size="9">Auth gating + redirects</text>
+  <text x="746" y="654" fill="#8a8580" font-size="9">•</text><text x="754" y="654" fill="#9a9590" font-size="9">API key validation</text>
+  <text x="746" y="672" fill="#8a8580" font-size="9">•</text><text x="754" y="672" fill="#9a9590" font-size="9">Rate limit handling</text>
+
+  <!-- Connectors from backend -->
+  <line x1="375" y1="700" x2="375" y2="726" stroke="#2a2530" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="303" y="710" width="144" height="22" rx="4" fill="#1a1a24" stroke="#2a2530" stroke-width="1"/>
+  <text x="375" y="725" text-anchor="middle" fill="#6a6562" font-size="8" letter-spacing="2" font-weight="600">SERVER-SIDE API</text>
+
+  <line x1="605" y1="700" x2="605" y2="726" stroke="#2a2530" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="536" y="710" width="138" height="22" rx="4" fill="#1a1a24" stroke="#2a2530" stroke-width="1"/>
+  <text x="605" y="725" text-anchor="middle" fill="#6a6562" font-size="8" letter-spacing="2" font-weight="600">REST / SDK</text>
+
+  <!-- ═══════════════════════════════════ SERVICES LAYER ═══════════════════════════════════ -->
+  <text x="40" y="766" fill="#7a7572" font-size="10" letter-spacing="4" font-weight="600">SERVICES</text>
+  <line x1="40" y1="773" x2="920" y2="773" stroke="#2a2530" stroke-width="0.5"/>
+
+  <!-- Card: TMDB -->
+  <rect x="40" y="786" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="62" cy="808" r="14" fill="#01b4e4" opacity="0.2"/>
+  <text x="62" y="813" text-anchor="middle" fill="#01b4e4" font-size="11" font-weight="700">T</text>
+  <text x="84" y="805" fill="#e8e0d0" font-size="13" font-weight="600">TMDB</text>
+  <text x="84" y="819" fill="#6a6562" font-size="9">Film, TV &amp; Anime</text>
+  <rect x="168" y="795" width="70" height="18" rx="9" fill="#01b4e4" opacity="0.12"/>
+  <text x="203" y="807" text-anchor="middle" fill="#01b4e4" font-size="8" font-weight="600">FILM + TV</text>
+  <text x="56" y="842" fill="#8a8580" font-size="9">•</text><text x="64" y="842" fill="#9a9590" font-size="9">Trending + popular endpoints</text>
+  <text x="56" y="860" fill="#8a8580" font-size="9">•</text><text x="64" y="860" fill="#9a9590" font-size="9">Multi-search with genres</text>
+  <text x="56" y="878" fill="#8a8580" font-size="9">•</text><text x="64" y="878" fill="#9a9590" font-size="9">Server-side API key</text>
+
+  <!-- Card: IGDB via Twitch -->
+  <rect x="270" y="786" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="292" cy="808" r="14" fill="#9146ff" opacity="0.2"/>
+  <text x="292" y="813" text-anchor="middle" fill="#9146ff" font-size="11" font-weight="700">I</text>
+  <text x="314" y="805" fill="#e8e0d0" font-size="13" font-weight="600">IGDB</text>
+  <text x="314" y="819" fill="#6a6562" font-size="9">Games via Twitch API</text>
+  <rect x="401" y="795" width="62" height="18" rx="9" fill="#9146ff" opacity="0.12"/>
+  <text x="432" y="807" text-anchor="middle" fill="#9146ff" font-size="8" font-weight="600">GAMES</text>
+  <text x="286" y="842" fill="#8a8580" font-size="9">•</text><text x="294" y="842" fill="#9a9590" font-size="9">Twitch client credentials</text>
+  <text x="286" y="860" fill="#8a8580" font-size="9">•</text><text x="294" y="860" fill="#9a9590" font-size="9">Game search + metadata</text>
+  <text x="286" y="878" fill="#8a8580" font-size="9">•</text><text x="294" y="878" fill="#9a9590" font-size="9">Cover art + genre data</text>
+
+  <!-- Card: Google Books -->
+  <rect x="500" y="786" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="522" cy="808" r="14" fill="#4285f4" opacity="0.2"/>
+  <text x="522" y="813" text-anchor="middle" fill="#4285f4" font-size="11" font-weight="700">G</text>
+  <text x="544" y="805" fill="#e8e0d0" font-size="13" font-weight="600">Google Books</text>
+  <text x="544" y="819" fill="#6a6562" font-size="9">Book metadata API</text>
+  <rect x="646" y="795" width="52" height="18" rx="9" fill="#4285f4" opacity="0.12"/>
+  <text x="672" y="807" text-anchor="middle" fill="#4285f4" font-size="8" font-weight="600">BOOKS</text>
+  <text x="516" y="842" fill="#8a8580" font-size="9">•</text><text x="524" y="842" fill="#9a9590" font-size="9">Volume search + metadata</text>
+  <text x="516" y="860" fill="#8a8580" font-size="9">•</text><text x="524" y="860" fill="#9a9590" font-size="9">Domain-restricted API key</text>
+  <text x="516" y="878" fill="#8a8580" font-size="9">•</text><text x="524" y="878" fill="#9a9590" font-size="9">Genre + cover thumbnails</text>
+
+  <!-- Card: Firebase -->
+  <rect x="730" y="786" width="210" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="752" cy="808" r="14" fill="#ffca28" opacity="0.2"/>
+  <text x="752" y="813" text-anchor="middle" fill="#ffca28" font-size="11" font-weight="700">F</text>
+  <text x="774" y="805" fill="#e8e0d0" font-size="13" font-weight="600">Firebase</text>
+  <text x="774" y="819" fill="#6a6562" font-size="9">Optional auth + config</text>
+  <rect x="870" y="795" width="58" height="18" rx="9" fill="#ffca28" opacity="0.12"/>
+  <text x="899" y="807" text-anchor="middle" fill="#ffca28" font-size="8" font-weight="600">CONFIG</text>
+  <text x="746" y="842" fill="#8a8580" font-size="9">•</text><text x="754" y="842" fill="#9a9590" font-size="9">Client-side SDK</text>
+  <text x="746" y="860" fill="#8a8580" font-size="9">•</text><text x="754" y="860" fill="#9a9590" font-size="9">Future: Auth + cloud sync</text>
+  <text x="746" y="878" fill="#8a8580" font-size="9">•</text><text x="754" y="878" fill="#9a9590" font-size="9">No auth required for MVP</text>
+
+  <!-- Connector: Data layer -->
+  <line x1="480" y1="906" x2="480" y2="932" stroke="#2a2530" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="408" y="916" width="144" height="22" rx="4" fill="#1a1a24" stroke="#2a2530" stroke-width="1"/>
+  <text x="480" y="931" text-anchor="middle" fill="#6a6562" font-size="8" letter-spacing="2" font-weight="600">PERSISTENCE</text>
+
+  <!-- ═══════════════════════════════════ DATA LAYER ═══════════════════════════════════ -->
+  <text x="40" y="972" fill="#7a7572" font-size="10" letter-spacing="4" font-weight="600">DATA</text>
+  <line x1="40" y1="979" x2="920" y2="979" stroke="#2a2530" stroke-width="0.5"/>
+
+  <!-- Card: Supabase/PostgreSQL -->
+  <rect x="40" y="992" width="280" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="62" cy="1014" r="14" fill="#3ecf8e" opacity="0.2"/>
+  <text x="62" y="1019" text-anchor="middle" fill="#3ecf8e" font-size="11" font-weight="700">S</text>
+  <text x="84" y="1011" fill="#e8e0d0" font-size="13" font-weight="600">Supabase</text>
+  <text x="84" y="1025" fill="#6a6562" font-size="9">PostgreSQL + vector search</text>
+  <rect x="252" y="1001" width="56" height="18" rx="9" fill="#3ecf8e" opacity="0.12"/>
+  <text x="280" y="1013" text-anchor="middle" fill="#3ecf8e" font-size="8" font-weight="600">PGVEC</text>
+  <text x="56" y="1048" fill="#8a8580" font-size="9">•</text><text x="64" y="1048" fill="#9a9590" font-size="9">match_media_items RPC function</text>
+  <text x="56" y="1066" fill="#8a8580" font-size="9">•</text><text x="64" y="1066" fill="#9a9590" font-size="9">Embedding-based similarity</text>
+  <text x="56" y="1084" fill="#8a8580" font-size="9">•</text><text x="64" y="1084" fill="#9a9590" font-size="9">Media metadata storage</text>
+
+  <!-- Card: localStorage -->
+  <rect x="340" y="992" width="280" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="362" cy="1014" r="14" fill="#d4a843" opacity="0.15"/>
+  <text x="362" y="1019" text-anchor="middle" fill="#d4a843" font-size="11" font-weight="700">L</text>
+  <text x="384" y="1011" fill="#e8e0d0" font-size="13" font-weight="600">localStorage</text>
+  <text x="384" y="1025" fill="#6a6562" font-size="9">Client-side persistence</text>
+  <rect x="554" y="1001" width="54" height="18" rx="9" fill="#d4a843" opacity="0.12"/>
+  <text x="581" y="1013" text-anchor="middle" fill="#d4a843" font-size="8" font-weight="600">CLIENT</text>
+  <text x="356" y="1048" fill="#8a8580" font-size="9">•</text><text x="364" y="1048" fill="#9a9590" font-size="9">Favorites list (no sign-in)</text>
+  <text x="356" y="1066" fill="#8a8580" font-size="9">•</text><text x="364" y="1066" fill="#9a9590" font-size="9">Pub/sub event system</text>
+  <text x="356" y="1084" fill="#8a8580" font-size="9">•</text><text x="364" y="1084" fill="#9a9590" font-size="9">Category preferences cache</text>
+
+  <!-- Card: Media Items -->
+  <rect x="640" y="992" width="280" height="120" rx="8" fill="url(#cardBg)" stroke="#2a2530" stroke-width="1"/>
+  <circle cx="662" cy="1014" r="14" fill="#e06850" opacity="0.15"/>
+  <text x="662" y="1019" text-anchor="middle" fill="#e06850" font-size="11" font-weight="700">M</text>
+  <text x="684" y="1011" fill="#e8e0d0" font-size="13" font-weight="600">Media Items</text>
+  <text x="684" y="1025" fill="#6a6562" font-size="9">Unified data model</text>
+  <rect x="852" y="1001" width="56" height="18" rx="9" fill="#e06850" opacity="0.12"/>
+  <text x="880" y="1013" text-anchor="middle" fill="#e06850" font-size="8" font-weight="600">5 CATS</text>
+  <text x="656" y="1048" fill="#8a8580" font-size="9">•</text><text x="664" y="1048" fill="#9a9590" font-size="9">Film / TV / Anime / Game / Book</text>
+  <text x="656" y="1066" fill="#8a8580" font-size="9">•</text><text x="664" y="1066" fill="#9a9590" font-size="9">Source: tmdb | igdb | gbooks</text>
+  <text x="656" y="1084" fill="#8a8580" font-size="9">•</text><text x="664" y="1084" fill="#9a9590" font-size="9">Genres, year, cover art</text>
+
+  <!-- ═══════════════════════════════════ TECH STACK FOOTER ═══════════════════════════════════ -->
+  <!-- Row 1 -->
+  <rect x="62" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#d4a843" stroke-width="0.8"/>
+  <text x="102" y="1165" text-anchor="middle" fill="#d4a843" font-size="9" font-weight="600">Next.js 14</text>
+
+  <rect x="152" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#3178c6" stroke-width="0.8"/>
+  <text x="192" y="1165" text-anchor="middle" fill="#3178c6" font-size="9" font-weight="600">TypeScript</text>
+
+  <rect x="242" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="282" y="1165" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="600">Tailwind CSS</text>
+
+  <rect x="332" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#61dafb" stroke-width="0.8"/>
+  <text x="372" y="1165" text-anchor="middle" fill="#61dafb" font-size="9" font-weight="600">React 18</text>
+
+  <rect x="422" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#01b4e4" stroke-width="0.8"/>
+  <text x="462" y="1165" text-anchor="middle" fill="#01b4e4" font-size="9" font-weight="600">TMDB</text>
+
+  <rect x="512" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#9146ff" stroke-width="0.8"/>
+  <text x="552" y="1165" text-anchor="middle" fill="#9146ff" font-size="9" font-weight="600">IGDB</text>
+
+  <rect x="602" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#4285f4" stroke-width="0.8"/>
+  <text x="642" y="1165" text-anchor="middle" fill="#4285f4" font-size="9" font-weight="600">Google Books</text>
+
+  <rect x="692" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#ffca28" stroke-width="0.8"/>
+  <text x="732" y="1165" text-anchor="middle" fill="#ffca28" font-size="9" font-weight="600">Firebase</text>
+
+  <rect x="782" y="1148" width="80" height="26" rx="4" fill="#1a1a24" stroke="#3ecf8e" stroke-width="0.8"/>
+  <text x="822" y="1165" text-anchor="middle" fill="#3ecf8e" font-size="9" font-weight="600">Supabase</text>
+
+  <!-- Row 2 -->
+  <rect x="242" y="1184" width="80" height="26" rx="4" fill="#1a1a24" stroke="#e06850" stroke-width="0.8"/>
+  <text x="282" y="1201" text-anchor="middle" fill="#e06850" font-size="9" font-weight="600">Zustand</text>
+
+  <rect x="332" y="1184" width="80" height="26" rx="4" fill="#1a1a24" stroke="#c084fc" stroke-width="0.8"/>
+  <text x="372" y="1201" text-anchor="middle" fill="#c084fc" font-size="9" font-weight="600">shadcn/ui</text>
+
+  <rect x="422" y="1184" width="80" height="26" rx="4" fill="#1a1a24" stroke="#f97316" stroke-width="0.8"/>
+  <text x="462" y="1201" text-anchor="middle" fill="#f97316" font-size="9" font-weight="600">Vercel</text>
+
+  <rect x="512" y="1184" width="80" height="26" rx="4" fill="#1a1a24" stroke="#6366f1" stroke-width="0.8"/>
+  <text x="552" y="1201" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="600">Discord</text>
+
+  <rect x="602" y="1184" width="80" height="26" rx="4" fill="#1a1a24" stroke="#50b080" stroke-width="0.8"/>
+  <text x="642" y="1201" text-anchor="middle" fill="#50b080" font-size="9" font-weight="600">npm</text>
+
+</svg>
