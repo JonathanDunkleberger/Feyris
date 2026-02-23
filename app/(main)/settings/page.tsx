@@ -103,7 +103,7 @@ export default function SettingsPage() {
                   <div className="text-[12px] font-semibold text-cream/70">
                     {src.name}
                   </div>
-                  <div className="text-[10px] text-cream/25">Coming soon</div>
+                  <div className="text-[10px] text-cream/25">Connect account</div>
                 </div>
               </button>
             );

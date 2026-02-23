@@ -71,10 +71,30 @@ export default function ForYouPage() {
     return Array.from(map.values());
   }, [carousels, cachedItems]);
 
-  // Pick specific carousels for the "For You" section
-  const animeCarousel = carousels.find((c) => c.key === "seasonal-anime" || c.key === "airing-anime");
-  const gameCarousel = carousels.find((c) => c.key === "popular-games" || c.key === "new-games");
-  const bookCarousel = carousels.find((c) => c.key === "fiction-books" || c.key === "scifi-books");
+  // Items the user has already consumed — filter these from recommendations
+  const consumedSet = useMemo(
+    () => new Set([...favorites, ...watched, ...Object.keys(ratings)]),
+    [favorites, watched, ratings]
+  );
+
+  // Pick specific carousels for the "For You" section and filter consumed items
+  const animeCarousel = useMemo(() => {
+    const c = carousels.find((c) => c.key === "seasonal-anime" || c.key === "airing-anime");
+    if (!c) return null;
+    return { ...c, items: c.items.filter((i) => !consumedSet.has(i.id)) };
+  }, [carousels, consumedSet]);
+
+  const gameCarousel = useMemo(() => {
+    const c = carousels.find((c) => c.key === "popular-games" || c.key === "new-games");
+    if (!c) return null;
+    return { ...c, items: c.items.filter((i) => !consumedSet.has(i.id)) };
+  }, [carousels, consumedSet]);
+
+  const bookCarousel = useMemo(() => {
+    const c = carousels.find((c) => c.key === "fiction-books" || c.key === "scifi-books");
+    if (!c) return null;
+    return { ...c, items: c.items.filter((i) => !consumedSet.has(i.id)) };
+  }, [carousels, consumedSet]);
 
   // ── Blended "Surprise Mix" carousel ──
   const blendedMix = useMemo(() => {
@@ -135,6 +155,28 @@ export default function ForYouPage() {
 
     return { typeBreakdown, topGenres, avgRating, totalFavorites: favorites.length, totalWatched: watched.length };
   }, [favorites, watched, cachedItems, ratings]);
+
+  // Generate dynamic carousel titles based on user's taste profile
+  const getCarouselTitle = useCallback((type: string) => {
+    if (!tasteProfile || tasteProfile.topGenres.length === 0) {
+      const fallbacks: Record<string, string> = {
+        anime: "Trending Anime",
+        game: "Popular Games",
+        book: "Books You Might Like",
+      };
+      return fallbacks[type] || "Recommended for You";
+    }
+    // Pick a genre the user likes that's relevant to this type
+    const typeGenres: Record<string, string[]> = {
+      anime: ["Action", "Fantasy", "Sci-Fi", "Drama", "Adventure", "Comedy"],
+      game: ["Action", "RPG", "Adventure", "Strategy", "Shooter", "Puzzle"],
+      book: ["Fiction", "Fantasy", "Sci-Fi", "Mystery", "Romance", "Thriller"],
+    };
+    const relevant = typeGenres[type] || [];
+    const match = tasteProfile.topGenres.find((g) => relevant.some((r) => g.toLowerCase().includes(r.toLowerCase())));
+    if (match) return `Because You Love ${match}`;
+    return `Recommended ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+  }, [tasteProfile]);
 
   return (
     <div className="animate-fadeIn">
@@ -225,28 +267,28 @@ export default function ForYouPage() {
           />
         )}
 
-        {/* Recommendation carousels — real API data */}
-        {animeCarousel && (
+        {/* Recommendation carousels — real API data, filtered */}
+        {animeCarousel && animeCarousel.items.length > 0 && (
           <MediaCarousel
-            title="Because You Love Sci-Fi"
+            title={getCarouselTitle("anime")}
             items={animeCarousel.items}
             onItemClick={setSelectedItem}
             icon={Star}
             type={animeCarousel.type as MediaType}
           />
         )}
-        {gameCarousel && (
+        {gameCarousel && gameCarousel.items.length > 0 && (
           <MediaCarousel
-            title="Cross-Medium Picks"
+            title={getCarouselTitle("game")}
             items={gameCarousel.items}
             onItemClick={setSelectedItem}
             icon={TrendingUp}
             type={gameCarousel.type as MediaType}
           />
         )}
-        {bookCarousel && (
+        {bookCarousel && bookCarousel.items.length > 0 && (
           <MediaCarousel
-            title="Trending in Your Genres"
+            title={getCarouselTitle("book")}
             items={bookCarousel.items}
             onItemClick={setSelectedItem}
             icon={Sparkles}

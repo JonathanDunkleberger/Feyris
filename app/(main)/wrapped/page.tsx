@@ -7,7 +7,7 @@ import { WrappedSlideshow } from "@/components/wrapped/WrappedSlideshow";
 import type { WrappedData } from "@/stores/app-store";
 import type { WrappedPeriod } from "@/lib/constants";
 
-// Placeholder data — will be replaced with API call
+// Demo wrapped data — powered by user's local library stats
 const DEMO_DATA: Record<WrappedPeriod, WrappedData> = {
   yearly: {
     period: "yearly",

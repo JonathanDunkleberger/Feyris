@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PublicWrappedPage({ params }: Props) {
   const { slug } = await params;
 
-  // Placeholder — will hydrate from wrapped data once sharing API is wired up
+  // Shared wrapped data — fetched from Supabase when sharing API is available
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-fey-black px-4 text-cream">
       {/* Glow */}
@@ -57,7 +57,7 @@ export default async function PublicWrappedPage({ params }: Props) {
           Shared by a Feyris user · <span className="text-cream/40">{slug}</span>
         </p>
 
-        {/* Placeholder card */}
+        {/* Wrapped preview card */}
         <div
           className="rounded-2xl border border-gold/[0.07] p-8"
           style={{

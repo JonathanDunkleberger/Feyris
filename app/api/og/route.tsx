@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
           }}
         />
 
-        {/* Cat silhouette placeholder */}
+        {/* Cat silhouette icon */}
         <div
           style={{
             display: "flex",

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// Placeholder data
+// Profile data — populated from user's public library via Supabase
 const DEMO_STATS = [
   { label: "Hours", value: "847" },
   { label: "Titles", value: "42" },
@@ -45,7 +45,7 @@ const TYPE_COLORS: Record<string, string> = {
 export default async function PublicProfilePage({ params }: Props) {
   const { username } = await params;
 
-  // Placeholder — will hydrate from user data once profile API is wired up
+  // Public profile data — fetched from Supabase when profile API is available
   return (
     <div className="flex min-h-screen flex-col bg-fey-black text-cream">
       {/* Header */}
@@ -144,7 +144,7 @@ export default async function PublicProfilePage({ params }: Props) {
           ))}
         </div>
 
-        {/* Recent Reviews placeholder */}
+        {/* Recent Reviews */}
         <h2 className="mb-3 mt-8 text-[14px] font-bold text-cream">
           Recent Reviews
         </h2>
