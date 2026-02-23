@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { searchTMDB } from "@/lib/api/tmdb";
 import { searchAnime, searchManga } from "@/lib/api/jikan";
 import { searchGames } from "@/lib/api/igdb";
-import { searchBooks } from "@/lib/api/books";
+import { searchBooks, bookCoverUrl } from "@/lib/api/books";
 
 // TMDB Genre ID → Name Map
 const TMDB_GENRE_MAP: Record<number, string> = {
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
               media_type: "book",
               title: vi.title || "",
               slug: `gbook-${r.id}`,
-              cover_image_url: vi.imageLinks?.thumbnail,
+              cover_image_url: bookCoverUrl(vi),
               description: vi.description,
               year: (vi.publishedDate || "").slice(0, 4),
               rating: (vi.averageRating || 0) * 20,
@@ -151,24 +151,38 @@ export async function GET(request: NextRequest) {
       let score = 0;
 
       // Exact title match = highest priority
-      if (title === qLower) score += 1000;
+      if (title === qLower) {
+        score += 1000;
+      }
       // Title starts with query
-      else if (title.startsWith(qLower)) score += 500;
+      else if (title.startsWith(qLower)) {
+        score += 500;
+      }
       // Title is "Query: Subtitle" or "Query - Subtitle"
-      else if (title.startsWith(qLower + ":") || title.startsWith(qLower + " -")) score += 400;
-      // Query contained in title
-      else if (title.includes(qLower)) score += 200;
+      else if (title.startsWith(qLower + ":") || title.startsWith(qLower + " -")) {
+        score += 400;
+      }
+      // Query appears as a whole word in title
+      else if (new RegExp(`\\b${qLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(title)) {
+        score += 300;
+      }
+      // Query contained as substring in title
+      else if (title.includes(qLower)) {
+        score += 150;
+      }
+      // Title doesn't contain query at all — heavy penalty
+      else {
+        score -= 200;
+      }
 
-      // Rating boost
+      // Rating boost (max 50)
       if (item.rating) score += Math.min(item.rating * 0.5, 50);
 
-      // Type priority for mainstream franchises
-      const typePriority: Record<string, number> = {
-        film: 30, tv: 25, anime: 20, game: 15, book: 10, manga: 5,
-      };
-      score += typePriority[item.media_type] || 0;
+      // Year boost for recent titles
+      const year = parseInt(String(item.year));
+      if (year && year > 2000) score += Math.min((year - 2000) * 0.5, 12);
 
-      // Penalize items where query is small part of long title
+      // Query-to-title ratio: penalize when query is a tiny part of a very long title
       if (title.length > 0) {
         const ratio = qLower.length / title.length;
         score += ratio * 50;
@@ -179,7 +193,19 @@ export async function GET(request: NextRequest) {
 
     combined.sort((a: any, b: any) => scoreResult(b, q) - scoreResult(a, q));
 
-    return NextResponse.json(combined.slice(0, 50));
+    // Filter out completely irrelevant results (query not in title at all)
+    const qLower = q.toLowerCase().trim();
+    const filtered = combined.filter((item: any) => {
+      const title = (item.title || "").toLowerCase();
+      const desc = (item.description || "").toLowerCase();
+      // Keep if query appears in title or at least in description
+      return title.includes(qLower) || desc.includes(qLower);
+    });
+
+    // If strict filtering removed everything, fall back to all results
+    const results = filtered.length > 0 ? filtered : combined;
+
+    return NextResponse.json(results.slice(0, 50));
   } catch (error) {
     console.error("Search error:", error);
     return NextResponse.json({ error: "Search failed" }, { status: 500 });

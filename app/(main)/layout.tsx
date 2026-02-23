@@ -25,10 +25,7 @@ export default function MainLayout({
 
       {/* Main content */}
       <main
-        className="flex-1 min-w-0 transition-[margin-left] duration-300 md:ml-[62px]"
-        style={{
-          marginLeft: undefined, // mobile: 0 via CSS
-        }}
+        className="flex-1 min-w-0 transition-[margin-left] duration-300"
       >
         {/* Apply sidebar offset on desktop via inline style */}
         <style>{`
@@ -40,7 +37,7 @@ export default function MainLayout({
         `}</style>
         <div className="f-main-offset transition-[margin-left] duration-300">
           <TopBar />
-          <div className="px-3 lg:px-4 pb-24 pt-[70px] md:pb-6">
+          <div className="px-4 lg:px-6 pb-24 pt-[70px] md:pb-6">
             {searchQuery ? <SearchResultsGrid /> : children}
           </div>
         </div>
