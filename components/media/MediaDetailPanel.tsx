@@ -122,6 +122,19 @@ export function MediaDetailPanel() {
     setReviewRating(0);
   }, [selectedItem?.id]);
 
+  // Fetch enriched detail data — must be above the conditional return (Rules of Hooks)
+  const { data: enrichedItem } = useQuery<MediaItem>({
+    queryKey: ["media-detail", selectedItem?.slug],
+    queryFn: async () => {
+      const res = await fetch(`/api/media/${selectedItem!.slug}`);
+      if (!res.ok) return selectedItem!;
+      return res.json();
+    },
+    enabled: !!selectedItem?.slug,
+    staleTime: 24 * 60 * 60 * 1000,
+    initialData: selectedItem ?? undefined,
+  });
+
   if (!selectedItem) return null;
 
   const item = selectedItem;
@@ -134,19 +147,6 @@ export function MediaDetailPanel() {
   const userRating = ratings[item.id] ?? 0;
   const reviews = reviewsMap[item.id] ?? [];
   const ratingSource = getRatingSource(item.media_type);
-
-  // ── Fetch enriched detail data on modal open ──
-  const { data: enrichedItem } = useQuery<MediaItem>({
-    queryKey: ["media-detail", item.slug],
-    queryFn: async () => {
-      const res = await fetch(`/api/media/${item.slug}`);
-      if (!res.ok) return item;
-      return res.json();
-    },
-    enabled: !!item.slug,
-    staleTime: 24 * 60 * 60 * 1000,
-    initialData: item,
-  });
 
   // Merge enriched data with selected item (enriched takes priority for extended fields)
   const display: MediaItem = {

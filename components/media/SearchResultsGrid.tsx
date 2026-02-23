@@ -33,7 +33,7 @@ export function SearchResultsGrid() {
       window.addEventListener("keydown", handleKey);
       return () => window.removeEventListener("keydown", handleKey);
     }
-  }, [searchQuery, setSearchQuery]);
+  }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!searchQuery.trim()) return null;
 
